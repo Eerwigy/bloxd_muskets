@@ -50,21 +50,23 @@ onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
 
   return "preventAction";
 };
-
 onPlayerFinishQTE = (id, qteid, succeed) => {
   const player = info.players[id];
   if (!player) return;
 
-  if (succeed && player.currentQteItem) {
-    const item = player.currentQteItem;
+  if (succeed && player.currentQteItem != null) {
+    const item = api.getItemSlot(id, player.weaponSlot);
+    if (!item) return;
+
     const attrs = item.attributes?.customAttributes;
     const weapon = player.currentWeapon;
 
     if (attrs) {
       attrs["muskets/loaded"] = true;
+
       api.setItemSlot(
         id,
-        api.getSelectedInventorySlotI(id),
+        player.weaponSlot,
         weapon.loadedItem,
         1,
         item.attributes,
@@ -75,6 +77,7 @@ onPlayerFinishQTE = (id, qteid, succeed) => {
 
   player.currentQte = null;
   player.currentQteItem = null;
+  player.weaponSlot = null;
 };
 
 function fireMusket(id, item, attrs, weapon) {
@@ -128,5 +131,6 @@ function startReloadQTE(id, item, weapon) {
 
   player.currentQte = qte;
   player.currentQteItem = item;
+  player.weaponSlot = api.getSelectedInventorySlotI(id);
   player.currentWeapon = weapon;
 }
