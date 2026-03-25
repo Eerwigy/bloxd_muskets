@@ -63,7 +63,6 @@ onPlayerFinishQTE = (id, qteid, succeed) => {
 
     if (attrs) {
       attrs["muskets/loaded"] = true;
-
       api.setItemSlot(
         id,
         player.weaponSlot,
