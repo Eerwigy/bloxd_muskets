@@ -1,3 +1,19 @@
+const WEAPONS = {
+  smoothbore: {
+    speed: 1.5,
+    damage: 1,
+    loadedItem: "Wood Crossbow Charged",
+    unloadedItem: "Wood Crossbow",
+  },
+
+  rifle: {
+    speed: 3,
+    damage: 2,
+    loadedItem: "Stone Crossbow Charged",
+    unloadedItem: "Stone Crossbow",
+  },
+};
+
 var info = {
   gameStarted: false,
   players: {},
@@ -10,6 +26,7 @@ onPlayerJoin = (id) => {
     currentQteItem: null,
   };
 };
+
 onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
   if (api.hasActiveQTE(id)) return "preventAction";
 
@@ -20,14 +37,15 @@ onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
   if (!item?.attributes?.customAttributes) return "preventAction";
 
   const attrs = item.attributes.customAttributes;
-  const mName = attrs["muskets/name"];
+  const weaponName = attrs["muskets/name"];
+  const weapon = WEAPONS[weaponName];
 
-  if (mName !== "smoothbore") return "preventAction";
+  if (!weapon) return "preventAction";
 
   if (attrs["muskets/loaded"]) {
-    fireMusket(id, item, attrs);
+    fireMusket(id, item, attrs, weapon);
   } else {
-    startReloadQTE(id, item);
+    startReloadQTE(id, item, weapon);
   }
 
   return "preventAction";
@@ -40,14 +58,14 @@ onPlayerFinishQTE = (id, qteid, succeed) => {
   if (succeed && player.currentQteItem) {
     const item = player.currentQteItem;
     const attrs = item.attributes?.customAttributes;
+    const weapon = player.currentWeapon;
 
     if (attrs) {
       attrs["muskets/loaded"] = true;
-
       api.setItemSlot(
         id,
         api.getSelectedInventorySlotI(id),
-        "Wood Crossbow Charged",
+        weapon.loadedItem,
         1,
         item.attributes,
         true,
@@ -59,13 +77,13 @@ onPlayerFinishQTE = (id, qteid, succeed) => {
   player.currentQteItem = null;
 };
 
-function fireMusket(id, item, attrs) {
+function fireMusket(id, item, attrs, weapon) {
   attrs["muskets/loaded"] = false;
 
   api.setItemSlot(
     id,
     api.getSelectedInventorySlotI(id),
-    "Wood Crossbow",
+    weapon.unloadedItem,
     1,
     item.attributes,
     true,
@@ -74,7 +92,15 @@ function fireMusket(id, item, attrs) {
   const [x, y, z] = api.getPosition(id);
   const { dir } = api.getPlayerFacingInfo(id);
 
-  api.attemptCreateThrowable(id, "Pebble", [x, y + 1.5, z], dir, 2, 1, 0.5);
+  api.attemptCreateThrowable(
+    id,
+    "Pebble",
+    [x, y + 1.5, z],
+    dir,
+    weapon.speed,
+    weapon.damage,
+    0.5,
+  );
 
   api.playParticleEffect({
     presetId: "lightGrayFirecrackerSmall",
@@ -83,7 +109,9 @@ function fireMusket(id, item, attrs) {
   });
 }
 
-function startReloadQTE(id, item) {
+function startReloadQTE(id, item, weapon) {
+  const player = info.players[id];
+
   const qte = api.addQTE(id, {
     type: "progressBar",
     parameters: {
@@ -98,6 +126,7 @@ function startReloadQTE(id, item) {
     },
   });
 
-  info.players[id].currentQte = qte;
-  info.players[id].currentQteItem = item;
+  player.currentQte = qte;
+  player.currentQteItem = item;
+  player.currentWeapon = weapon;
 }
