@@ -37,11 +37,3 @@ api.giveItem(myId, "Iron Sword", 1, {
     },
   },
 });
-
-api.giveItem(myId, "Pebble", 999, {
-  customDisplayName: "Musketball",
-  customDescription: "Standard musket munition",
-  customAttributes: {
-    "muskets/name": "musketball",
-  },
-});
