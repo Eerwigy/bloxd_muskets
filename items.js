@@ -4,6 +4,9 @@ api.giveItem(myId, "Wood Crossbow", 1, {
   customAttributes: {
     "muskets/name": "smoothbore",
     enchantmentTier: "Tier 3",
+    enchantments: {
+      Damage: 4,
+    },
   },
 });
 
@@ -13,6 +16,9 @@ api.giveItem(myId, "Stone Crossbow", 1, {
   customAttributes: {
     "muskets/name": "rifle",
     enchantmentTier: "Tier 4",
+    enchantments: {
+      Damage: 3,
+    },
   },
 });
 
