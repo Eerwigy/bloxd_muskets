@@ -1,14 +1,14 @@
 const WEAPONS = {
   smoothbore: {
     speed: 1.5,
-    damage: 1,
+    damage: 2,
     loadedItem: "Wood Crossbow Charged",
     unloadedItem: "Wood Crossbow",
   },
 
   rifle: {
     speed: 3,
-    damage: 2,
+    damage: 4,
     loadedItem: "Stone Crossbow Charged",
     unloadedItem: "Stone Crossbow",
   },
