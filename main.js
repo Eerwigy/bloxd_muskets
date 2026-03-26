@@ -16,6 +16,22 @@ const WEAPONS = {
   },
 };
 
+const UNIFORMS = {
+  helmet: {
+    regular: "Gray Wood Helmet",
+    sharpshooter: "Green Wood Helmet",
+    captain: "Gold Helmet",
+  },
+  chestplate: {
+    british: "Red Wood Chestplate",
+    french: "Blue Wood Chestplate",
+  },
+  leggings: {
+    british: "Light Gray Wood Leggings",
+    french: "White Wood Leggings",
+  },
+};
+
 const gameState = {
   gameStarted: false,
   players: {},
@@ -141,23 +157,11 @@ function startReloadQTE(id, item, weapon) {
 }
 
 function equipUniform(id) {
-  const i = gameState.players[id];
+  const player = gameState.players[id];
 
-  if (i.role === "regular") {
-    api.setItemSlot(id, 46, "Gray Wood Helmet", 1);
-  } else if (i.role === "captain") {
-    api.setItemSlot(id, 46, "Gold Helmet", 1);
-  } else if (i.role === "sharpshooter") {
-    api.setItemSlot(id, 46, "Green Wood Helmet", 1);
-  }
-
-  if (i.team === "british") {
-    api.setItemSlot(id, 47, "Red Wood Chestplate", 1);
-    api.setItemSlot(id, 48, "Light Gray Wood Leggings", 1);
-  } else if (i.team === "french") {
-    api.setItemSlot(id, 47, "Blue Wood Chestplate", 1);
-    api.setItemSlot(id, 49, "White Wood Leggings", 1);
-  }
+  api.setItemSlot(id, 46, UNIFORMS.helmet[player.role], 1);
+  api.setItemSlot(id, 47, UNIFORMS.chestplate[player.team], 1);
+  api.setItemSlot(id, 49, UNIFORMS.leggings[player.team], 1);
 
   api.setItemSlot(id, 50, "Black Wood Boots", 1);
 }
