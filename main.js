@@ -2,6 +2,7 @@ const WEAPONS = {
   smoothbore: {
     speed: 1.5,
     damage: 2,
+    realoadSpeed: 10,
     loadedItem: "Wood Crossbow Charged",
     unloadedItem: "Wood Crossbow",
   },
@@ -9,6 +10,7 @@ const WEAPONS = {
   rifle: {
     speed: 3,
     damage: 4,
+    realoadSpeed: 8,
     loadedItem: "Stone Crossbow Charged",
     unloadedItem: "Stone Crossbow",
   },
@@ -50,6 +52,7 @@ onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
 
   return "preventAction";
 };
+
 onPlayerFinishQTE = (id, qteid, succeed) => {
   const player = info.players[id];
   if (!player) return;
@@ -119,7 +122,7 @@ function startReloadQTE(id, item, weapon) {
     parameters: {
       progressStartValue: 10,
       progressDecreasePerTick: 0.5,
-      progressPerClick: 50,
+      progressPerClick: weapon.realoadSpeed,
       canFail: true,
       description: [{ str: "Load your musket!" }],
       clickIcon: "fa-solid fa-computer-mouse",
