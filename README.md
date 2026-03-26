@@ -21,5 +21,6 @@ git clone https://github.com/Eerwigy/bloxd_muskets.git
 2. Go to https://bloxd.io
 3. Go to Settings > Texture Pack
 4. Select "custom"
-5. Drag the "Muskets Texture Pack" folder into the box
+5. Drag one of the texture pack folders ("Muskets Texture Pack" or "Muskets Texture Pack v2")into the box
+Note: "Muskets Texture Pack" is built on top of the default bloxd texture pack while "Muskets Texture Pack v2" is built on top of default2.
 6. Click "apply" and reload the page
