@@ -33,7 +33,6 @@ onPlayerJoin = (id) => {
   gameState.players[id] = {
     role: "regular",
     team: "french",
-    currentQteItem: null,
     currentWeapon: null,
     weaponSlot: null,
   };
@@ -70,7 +69,7 @@ onPlayerFinishQTE = (id, qteId, succeed) => {
   const player = getPlayer(id);
   if (!player) return;
 
-  if (succeed && player.currentQteItem) {
+  if (succeed && player.weaponSlot !== null) {
     const item = api.getItemSlot(id, player.weaponSlot);
     if (!item) return;
 
@@ -89,7 +88,6 @@ onPlayerFinishQTE = (id, qteId, succeed) => {
     );
   }
 
-  player.currentQteItem = null;
   player.currentWeapon = null;
   player.weaponSlot = null;
 };
@@ -138,7 +136,6 @@ function startReloadQTE(id, item, weapon) {
     },
   });
 
-  player.currentQteItem = item;
   player.currentWeapon = weapon;
   player.weaponSlot = api.getSelectedInventorySlotI(id);
 }
