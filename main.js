@@ -102,17 +102,21 @@ tick = () => {
     const d1 = dists[0] ?? Infinity;
     const d2 = dists[1] ?? Infinity;
 
+    let proximity;
+
     if (d1 <= 9 && d2 <= 9) {
-      player.morale = 100;
+      proximity = 50;
     } else {
       const d = (d1 + d2) * 0.5;
 
       if (d >= 400) {
-        player.morale = 50;
+        proximity = 0;
       } else {
-        player.morale = 100 - ((Math.sqrt(d) - 3) / (20 - 3)) * 50;
+        proximity = ((Math.sqrt(d) - 3) / (20 - 3)) * 50;
       }
     }
+
+    player.morale = proximity + api.getHealth(id) * 0.5;
 
     api.setClientOption(
       id,
