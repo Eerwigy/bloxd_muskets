@@ -40,6 +40,10 @@ const gameState = {
     british: [],
     french: [],
   },
+  morale: {
+    british: 0,
+    french: 0,
+  },
 };
 
 function getPlayer(id) {
@@ -77,6 +81,9 @@ onPlayerLeave = (id) => {
 
 tick = () => {
   const ids = api.getPlayerIds();
+
+  let britishMorale = 0;
+  let frenchMorale = 0;
 
   for (const id of ids) {
     const myPos = api.getPosition(id);
@@ -118,6 +125,12 @@ tick = () => {
 
     player.morale = proximity + api.getHealth(id) * 0.5;
 
+    if (player.team === "french") {
+      frenchMorale += player.morale;
+    } else {
+      britishMorale += player.morale;
+    }
+
     api.setClientOption(
       id,
       "RightInfoText",
@@ -127,13 +140,17 @@ tick = () => {
       Current Morale: ${Math.ceil(player.morale)}
 
       Teams Average Morale:
-      🟦${0} - ${0}🟥
+      🟦${gameState.morale.french} - ${gameState.morale.british}🟥
 
       Capture progress:
       🟦${0}% - ${0}%🟥
       `,
     );
   }
+
+  gameState.morale.french = frenchMorale / gameState.teams.french.length || 0;
+  gameState.morale.british =
+    britishMorale / gameState.teams.british.length || 0;
 };
 
 onPlayerAttemptAltAction = (id) => {
