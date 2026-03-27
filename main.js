@@ -1,7 +1,7 @@
 const WEAPONS = {
   smoothbore: {
     speed: 1.5,
-    damage: 2,
+    damage: 3,
     reloadSpeed: 10,
     loadedItem: "Wood Crossbow Charged",
     unloadedItem: "Wood Crossbow",
@@ -9,7 +9,7 @@ const WEAPONS = {
 
   rifle: {
     speed: 3,
-    damage: 4,
+    damage: 5,
     reloadSpeed: 8,
     loadedItem: "Stone Crossbow Charged",
     unloadedItem: "Stone Crossbow",
@@ -21,6 +21,7 @@ const UNIFORMS = {
     soldier: "Gray Wood Helmet",
     grenadier: "Iron Helmet",
     sharpshooter: "Green Wood Helmet",
+    artillery: "Cyan Wood Helmet",
     captain: "Gold Helmet",
   },
   chestplate: {
@@ -140,7 +141,7 @@ tick = () => {
       Current Morale: ${Math.ceil(player.morale)}
 
       Teams Average Morale:
-      🟦${gameState.morale.french} - ${gameState.morale.british}🟥
+      🟦${Math.ceil(gameState.morale.french)} - ${Math.ceil(gameState.morale.british)}🟥
 
       Capture progress:
       🟦${0}% - ${0}%🟥
@@ -217,6 +218,7 @@ function fireWeapon(id, item, attrs, weapon) {
 
   const [x, y, z] = api.getPosition(id);
   const { dir } = api.getPlayerFacingInfo(id);
+  const morale = gameState.players[id]?.morale;
 
   api.attemptCreateThrowable(
     id,
@@ -224,7 +226,7 @@ function fireWeapon(id, item, attrs, weapon) {
     [x, y + 1.5, z],
     dir,
     weapon.speed,
-    weapon.damage,
+    weapon.damage * morale * 0.01,
     0.5,
   );
 
