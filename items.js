@@ -5,7 +5,7 @@ api.giveItem(myId, "Wood Crossbow", 1, {
     "muskets/name": "smoothbore",
     enchantmentTier: "Tier 3",
     enchantments: {
-      Damage: 4,
+      Damage: 10,
     },
   },
 });
@@ -17,7 +17,7 @@ api.giveItem(myId, "Stone Crossbow", 1, {
     "muskets/name": "rifle",
     enchantmentTier: "Tier 4",
     enchantments: {
-      Damage: 3,
+      Damage: 5,
     },
   },
 });
@@ -41,5 +41,13 @@ api.giveItem(myId, "Iron Sword", 1, {
       "Attack Speed": 2,
       "Horizontal Knockback": 4,
     },
+  },
+});
+
+api.giveItem(myId, "Gray Firecracker Pebble", 10, {
+  customDisplayName: "Handgrenade",
+  customDescription: "Throwable bombs that can disorient the enemy",
+  customAttributes: {
+    "muskets/name": "grenade",
   },
 });

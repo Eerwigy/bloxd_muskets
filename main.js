@@ -18,7 +18,8 @@ const WEAPONS = {
 
 const UNIFORMS = {
   helmet: {
-    regular: "Gray Wood Helmet",
+    soldier: "Gray Wood Helmet",
+    grenadier: "Iron Helmet",
     sharpshooter: "Green Wood Helmet",
     captain: "Gold Helmet",
   },
@@ -46,14 +47,89 @@ function getPlayer(id) {
 }
 
 onPlayerJoin = (id) => {
+  api.clearInventory(id);
+
   gameState.players[id] = {
-    role: "regular",
+    role: "soldier",
     team: "french",
+    morale: 100,
     currentWeapon: null,
     weaponSlot: null,
   };
 
   gameState.teams.french.push(id);
+};
+
+onPlayerLeave = (id) => {
+  const player = gameState.players[id];
+  if (!player) return;
+
+  const teamArray = gameState.teams[player.team];
+  if (teamArray) {
+    const index = teamArray.indexOf(id);
+    if (index !== -1) {
+      teamArray.splice(index, 1);
+    }
+  }
+
+  delete gameState.players[id];
+};
+
+tick = () => {
+  const ids = api.getPlayerIds();
+
+  for (const id of ids) {
+    const myPos = api.getPosition(id);
+    const dists = [];
+
+    for (const other of ids) {
+      if (other === id) continue;
+
+      const otherPos = api.getPosition(other);
+
+      const distSq =
+        (otherPos[0] - myPos[0]) ** 2 +
+        (otherPos[1] - myPos[1]) ** 2 +
+        (otherPos[2] - myPos[2]) ** 2;
+
+      dists.push(distSq);
+    }
+
+    dists.sort((a, b) => a - b);
+
+    const player = gameState.players[id];
+
+    const d1 = dists[0] ?? Infinity;
+    const d2 = dists[1] ?? Infinity;
+
+    if (d1 <= 9 && d2 <= 9) {
+      player.morale = 100;
+    } else {
+      const d = (d1 + d2) * 0.5;
+
+      if (d >= 400) {
+        player.morale = 50;
+      } else {
+        player.morale = 100 - ((Math.sqrt(d) - 3) / (20 - 3)) * 50;
+      }
+    }
+
+    api.setClientOption(
+      id,
+      "RightInfoText",
+      `Bloxd Muskets🏹
+      Made by Yervweigh
+
+      Current Morale: ${Math.ceil(player.morale)}
+
+      Teams Average Morale:
+      🟦${0} - ${0}🟥
+
+      Capture progress:
+      🟦${0}% - ${0}%🟥
+      `,
+    );
+  }
 };
 
 onPlayerAttemptAltAction = (id) => {
@@ -68,6 +144,9 @@ onPlayerAttemptAltAction = (id) => {
   if (!attrs) return "preventAction";
 
   const weaponName = attrs["muskets/name"];
+
+  if (weaponName === "grenade") return;
+
   const weapon = WEAPONS[weaponName];
 
   if (!weapon) return "preventAction";
