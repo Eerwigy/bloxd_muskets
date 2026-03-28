@@ -1,3 +1,8 @@
+// Bloxd Muskets🏹
+// Made by Yervweigh
+//
+// Licensed under Apache-2.0
+
 const WEAPONS = {
   smoothbore: {
     speed: 1.5,
@@ -21,7 +26,7 @@ const WEAPONS = {
 
   arty: {
     speed: 1,
-    damage: 1,
+    damage: 2,
     reloadSpeed: 3,
     loadedItem: "Diamond Crossbow Charged",
     unloadedItem: "Diamond Crossbow",
@@ -58,6 +63,11 @@ const gameState = {
   morale: {
     british: 0,
     french: 0,
+  },
+  capture: {
+    british: 0,
+    french: 0,
+    neutral: 0,
   },
 };
 
@@ -136,9 +146,19 @@ tick = () => {
 
     player.morale = proximity + api.getHealth(id) * 0.5;
 
+    let blocks = api.getBlockTypesPlayerStandingOn(id);
+
     if (player.team === "french") {
+      if (blocks.includes("Red Portal")) {
+        gameState.capture.british += 0.01;
+      }
+
       frenchMorale += player.morale;
     } else {
+      if (blocks.includes("Blue Portal")) {
+        gameState.capture.french += 0.01;
+      }
+
       britishMorale += player.morale;
     }
 
@@ -154,7 +174,7 @@ tick = () => {
       🟦${Math.ceil(gameState.morale.french)} - ${Math.ceil(gameState.morale.british)}🟥
 
       Capture progress:
-      🟦${0}% - ${0}%🟥
+      🟦${Math.floor(gameState.capture.french)}% - ${Math.floor(gameState.capture.british)}%🟥
       `,
     );
   }
@@ -164,8 +184,10 @@ tick = () => {
     britishMorale / gameState.teams.british.length || 0;
 };
 
-onPlayerAttemptAltAction = (id) => {
+onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
   if (api.hasActiveQTE(id)) return "preventAction";
+
+  if (blockName.includes("Door")) return;
 
   const player = gameState.players[id];
   if (!player) return "preventAction";
