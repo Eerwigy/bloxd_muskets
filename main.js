@@ -47,10 +47,6 @@ const gameState = {
   },
 };
 
-function getPlayer(id) {
-  return gameState.players[id];
-}
-
 onPlayerJoin = (id) => {
   api.clearInventory(id);
 
@@ -115,12 +111,12 @@ tick = () => {
     if (d1 <= 9 && d2 <= 9) {
       proximity = 50;
     } else {
-      const d = (d1 + d2) * 0.5;
+      const d = (Math.sqrt(d1) + Math.sqrt(d2)) * 0.5;
 
-      if (d >= 400) {
+      if (d >= 20) {
         proximity = 0;
       } else {
-        proximity = ((Math.sqrt(d) - 3) / (20 - 3)) * 50;
+        proximity = (1 - (d - 3) / (20 - 3)) * 50;
       }
     }
 
@@ -157,7 +153,7 @@ tick = () => {
 onPlayerAttemptAltAction = (id) => {
   if (api.hasActiveQTE(id)) return "preventAction";
 
-  const player = getPlayer(id);
+  const player = gameState.players[id];
   if (!player) return "preventAction";
 
   const item = api.getHeldItem(id);
@@ -183,7 +179,7 @@ onPlayerAttemptAltAction = (id) => {
 };
 
 onPlayerFinishQTE = (id, qteId, succeed) => {
-  const player = getPlayer(id);
+  const player = gameState.players[id];
   if (!player) return;
 
   if (succeed && player.weaponSlot !== null) {
@@ -220,13 +216,16 @@ function fireWeapon(id, item, attrs, weapon) {
   const { dir } = api.getPlayerFacingInfo(id);
   const morale = gameState.players[id]?.morale;
 
+  // 100 -> 1.5x, 0 -> 0.5x
+  const moraleFactor = 0.5 + morale * 0.01;
+
   api.attemptCreateThrowable(
     id,
     "Pebble",
     [x, y + 1.5, z],
     dir,
     weapon.speed,
-    weapon.damage * morale * 0.01,
+    weapon.damage * moraleFactor,
     0.5,
   );
 
@@ -238,14 +237,17 @@ function fireWeapon(id, item, attrs, weapon) {
 }
 
 function startReloadQTE(id, item, weapon) {
-  const player = getPlayer(id);
+  const player = gameState.players[id];
+
+  // 100 -> 1.5x, 0 -> 0.5x
+  const moraleFactor = 0.5 + player.morale * 0.01;
 
   const qteId = api.addQTE(id, {
     type: "progressBar",
     parameters: {
       progressStartValue: 10,
       progressDecreasePerTick: 0.5,
-      progressPerClick: weapon.reloadSpeed,
+      progressPerClick: weapon.reloadSpeed * moraleFactor,
       canFail: true,
       description: [{ str: "Load your musket!" }],
       clickIcon: "fa-solid fa-computer-mouse",
