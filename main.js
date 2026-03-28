@@ -5,6 +5,8 @@ const WEAPONS = {
     reloadSpeed: 10,
     loadedItem: "Wood Crossbow Charged",
     unloadedItem: "Wood Crossbow",
+    projectile: "Pebble",
+    message: "Load your musket!",
   },
 
   rifle: {
@@ -13,6 +15,18 @@ const WEAPONS = {
     reloadSpeed: 8,
     loadedItem: "Stone Crossbow Charged",
     unloadedItem: "Stone Crossbow",
+    projectile: "Pebble",
+    message: "Load your musket!",
+  },
+
+  arty: {
+    speed: 1,
+    damage: 1,
+    reloadSpeed: 3,
+    loadedItem: "Diamond Crossbow Charged",
+    unloadedItem: "Diamond Crossbow",
+    projectile: "Fireball",
+    message: "Load your cannon!",
   },
 };
 
@@ -221,7 +235,7 @@ function fireWeapon(id, item, attrs, weapon) {
 
   api.attemptCreateThrowable(
     id,
-    "Pebble",
+    weapon.projectile,
     [x, y + 1.5, z],
     dir,
     weapon.speed,
@@ -249,7 +263,7 @@ function startReloadQTE(id, item, weapon) {
       progressDecreasePerTick: 0.5,
       progressPerClick: weapon.reloadSpeed * moraleFactor,
       canFail: true,
-      description: [{ str: "Load your musket!" }],
+      description: [{ str: weapon.message }],
       clickIcon: "fa-solid fa-computer-mouse",
       scale: 1,
       rotation: 15,
