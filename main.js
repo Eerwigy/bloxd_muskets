@@ -25,7 +25,7 @@ const WEAPONS = {
   },
 
   arty: {
-    speed: 1,
+    speed: 3,
     damage: 2,
     reloadSpeed: 3,
     loadedItem: "Diamond Crossbow Charged",

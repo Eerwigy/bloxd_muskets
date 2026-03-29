@@ -53,7 +53,7 @@ api.giveItem(myId, "Iron Sword", 1, {
 // });
 
 api.giveItem(myId, "Diamond Crossbow", 1, {
-  customDisplayName: "6-lb Field Cannon",
+  customDisplayName: "4-lb Field Cannon",
   customDescription: "An excellent lightweight artillery gun",
   customAttributes: {
     "muskets/name": "arty",
