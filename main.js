@@ -53,7 +53,7 @@ const UNIFORMS = {
   },
 };
 
-const gameState = {
+var gameState = {
   gameStarted: false,
   players: {},
   teams: {
