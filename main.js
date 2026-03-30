@@ -74,15 +74,29 @@ const gameState = {
 onPlayerJoin = (id) => {
   api.clearInventory(id);
 
+  const frenchCount = gameState.teams.french.length;
+  const britishCount = gameState.teams.british.length;
+
+  let team;
+
+  if (frenchCount < britishCount) {
+    team = "french";
+  } else if (britishCount < frenchCount) {
+    team = "british";
+  } else {
+    team = Math.random() < 0.5 ? "french" : "british";
+  }
+
   gameState.players[id] = {
     role: "soldier",
-    team: "french",
+    team: team,
     morale: 100,
     currentWeapon: null,
     weaponSlot: null,
   };
 
-  gameState.teams.french.push(id);
+  gameState.teams[team].push(id);
+  equipUniform(id);
 };
 
 onPlayerLeave = (id) => {
@@ -212,6 +226,12 @@ onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
   }
 
   return "preventAction";
+};
+
+onPlayerDamagingOtherPlayer = (attacker, damaged, _n, item) => {
+  if (gameState.players[attacker].team == gameState.players[damaged].team) {
+    return "preventDamage";
+  }
 };
 
 onPlayerFinishQTE = (id, qteId, succeed) => {
