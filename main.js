@@ -169,14 +169,14 @@ tick = () => {
       }
 
       frenchMorale += player.morale;
-      teamMsg = "French🟦";
+      teamMsg = "🟦French";
     } else {
       if (blocks.includes("Blue Portal")) {
         gameState.capture.french += 0.01;
       }
 
       britishMorale += player.morale;
-      teamMsg = "Britsh🟥";
+      teamMsg = "🟥British";
     }
 
     api.setClientOption(
