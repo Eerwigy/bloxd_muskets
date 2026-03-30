@@ -4,6 +4,46 @@ This is an early verison of a project I am making that aims to create a napoleon
 
 You can playtest this at https://bloxd.io/play/classic/bloxd_muskets.
 
+## Morale
+
+Morale is calculated based on your proximity to other teammates and your HP. High morale will let you reload faster and deal more damage, while low morale makes you slower and weaker. To maintain a high morale, it is advised to stay in formation.
+
+## Roles
+
+You will be assigned one of the following at the beginning of a battle.
+
+### Musketeer
+
+This is the default role. You recieve a smoothbore musket which you can use to shoot musketballs or stab enemies with your bayonet.
+
+### Sharpshooter
+
+You recieve a rifled musket. This deals more ranged damage than a smoothbore and is more accurate. Howeevr, you deal less melee damage.
+
+### Grenadier
+
+Grenadiers are elite soldiers. You get the same equipment as musketeers but with a strength bonus. You also get a few handgrenades to disorient the enemy.
+
+### Dragoon
+
+You get a horse and and a cavalry sabre. You can use this to charge the enemy.
+
+### Artillery
+
+You recieve a 4-lb field cannon that can shoot explosive shells. It is very heavy, so you have a slowness debuff. You also get an infantry sabre to defend yourself in close combat.
+
+### Captain
+
+You are the leader of your team. You can order your team to hold position, march, charge or fallback. You have an infantry sabre for melee and a pistol for long range.
+
+## Teams
+
+You can play in teams of 3-15. The role composition changes based on the amount of players:
+
+- 3 Players: 1 Musketeer, 1 Sharpshooter, 1 Captain
+- 7 Players: 3 Musketeer, 2 Sharpshooter, 1 Artillery, 1 Captain
+- 15 Players: 7 Musketeer, 3 Sharpshooter, 2 Grenadiers, 1 Artillery, 1 Dragoon, 1 Captain
+
 ## Texture pack
 
 Use the texture pack to show custom musket and sabre models. If you don't, it would just show the default crossbow and sword.
