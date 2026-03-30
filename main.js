@@ -161,6 +161,7 @@ tick = () => {
     player.morale = proximity + api.getHealth(id) * 0.5;
 
     let blocks = api.getBlockTypesPlayerStandingOn(id);
+    let teamMsg;
 
     if (player.team === "french") {
       if (blocks.includes("Red Portal")) {
@@ -168,12 +169,14 @@ tick = () => {
       }
 
       frenchMorale += player.morale;
+      teamMsg = "French🟦";
     } else {
       if (blocks.includes("Blue Portal")) {
         gameState.capture.french += 0.01;
       }
 
       britishMorale += player.morale;
+      teamMsg = "Britsh🟥";
     }
 
     api.setClientOption(
@@ -181,6 +184,8 @@ tick = () => {
       "RightInfoText",
       `Bloxd Muskets🏹
       Made by Yervweigh
+
+      Your Team: ${teamMsg}
 
       Current Morale: ${Math.ceil(player.morale)}
 
@@ -193,9 +198,15 @@ tick = () => {
     );
   }
 
-  gameState.morale.french = frenchMorale / gameState.teams.french.length || 0;
+  gameState.morale.french =
+    gameState.teams.french.length > 0
+      ? frenchMorale / gameState.teams.french.length
+      : 0;
+
   gameState.morale.british =
-    britishMorale / gameState.teams.british.length || 0;
+    gameState.teams.british.length > 0
+      ? britishMorale / gameState.teams.british.length
+      : 0;
 };
 
 onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
