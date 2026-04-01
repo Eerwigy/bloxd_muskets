@@ -4,6 +4,10 @@ This is an early verison of a project I am making that aims to create a napoleon
 
 You can playtest this at https://bloxd.io/play/classic/bloxd_muskets.
 
+## How to play
+
+Your goal is to capture the other teams camp on the other side of the map. At the center, there is a neutral objective, that if captured, lets you respawn there instead of at camp. There is a morale system put in place to maintain somewhat historical accuracy and to encourage players to play and strategise as a team instead of just one player soloing the whole lobby while the rest of the team doesn't get to do much.
+
 ## Morale
 
 Morale is calculated based on your proximity to other teammates and your HP. High morale will let you reload faster and deal more damage, while low morale makes you slower and weaker. To maintain a high morale, it is advised to stay in formation.
