@@ -44,13 +44,13 @@ api.giveItem(myId, "Iron Sword", 1, {
   },
 });
 
-// api.giveItem(myId, "Gray Firecracker Pebble", 10, {
-//   customDisplayName: "Handgrenade",
-//   customDescription: "Throwable bombs that can disorient the enemy",
-//   customAttributes: {
-//     "muskets/name": "grenade",
-//   },
-// });
+api.giveItem(myId, "Gray Paintball", 1, {
+  customDisplayName: "Handgrenade",
+  customDescription: "Throwable bombs that can disorient the enemy",
+  customAttributes: {
+    "muskets/name": "grenade",
+  },
+});
 
 api.giveItem(myId, "Diamond Crossbow", 1, {
   customDisplayName: "4-lb Field Cannon",
