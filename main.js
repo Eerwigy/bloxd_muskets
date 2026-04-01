@@ -179,6 +179,31 @@ tick = () => {
       teamMsg = "🟥British";
     }
 
+    let roleMsg;
+
+    switch (player.role) {
+      case "soldier":
+        roleMsg = "🏹Musketeer";
+        break;
+      case "sharpshooter":
+        roleMsg = "🎯Sharpshooter";
+        break;
+      case "artillery":
+        roleMsg = "💥Artillery";
+        break;
+      case "cavalry":
+        roleMsg = "🐴Dragoon";
+        break;
+      case "grenadier":
+        roleMsg = "💣Grenadier";
+        break;
+      case "captain":
+        roleMsg = "👑Captain";
+        break;
+      default:
+        "";
+    }
+
     api.setClientOption(
       id,
       "RightInfoText",
@@ -186,6 +211,7 @@ tick = () => {
       Made by Yervweigh
 
       Your Team: ${teamMsg}
+      Your Role: ${roleMsg}
 
       Current Morale: ${Math.ceil(player.morale)}
 
@@ -222,9 +248,36 @@ onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
 
   if (!attrs) return "preventAction";
 
-  const weaponName = attrs["muskets/name"];
+  const weaponName = attrs["muskets/name"] || "";
 
-  if (weaponName === "grenade") return;
+  if (weaponName.startsWith("order/")) {
+    let order = weaponName.slice(6);
+
+    switch (order) {
+      case "advance":
+        api.broadcastMessage("Your captain is ordering you to ADVANCE", {
+          color: "cornflower",
+        });
+        break;
+      case "charge":
+        api.broadcastMessage("Your captain is ordering you to CHARGE", {
+          color: "orange",
+        });
+        break;
+      case "hold":
+        api.broadcastMessage("Your captain is ordering you to HOLD POSITION", {
+          color: "yellow",
+        });
+        break;
+      case "fallback":
+        api.broadcastMessage("Your captain is ordering you to FALLBACK", {
+          color: "grey",
+        });
+        break;
+      default:
+        api.log("Error: Invalid Order");
+    }
+  }
 
   const weapon = WEAPONS[weaponName];
 
