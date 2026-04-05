@@ -285,12 +285,6 @@ onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
   return "preventAction";
 };
 
-onPlayerDamagingOtherPlayer = (attacker, damaged, _n, item) => {
-  if (gameState.players[attacker].team === gameState.players[damaged].team) {
-    return "preventDamage";
-  }
-};
-
 onPlayerFinishQTE = (id, qteId, succeed) => {
   const player = gameState.players[id];
   if (!player) return;
