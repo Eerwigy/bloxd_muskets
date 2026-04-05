@@ -3,6 +3,10 @@
 //
 // Licensed under Apache-2.0
 
+const FRENCH_CAMP_POS = [1051.5, 51, 1012.5];
+const BRITISH_CAMP_POS = [1049.5, 51, 1388.5];
+const NEUTRAL_OBJ_POS = [1041.5, 51, 1212.5];
+
 const WEAPONS = {
   smoothbore: {
     speed: 1.5,
@@ -38,8 +42,9 @@ const WEAPONS = {
 const UNIFORMS = {
   helmet: {
     soldier: "Gray Wood Helmet",
-    grenadier: "Iron Helmet",
+    grenadier: "Black Wood Helmet",
     sharpshooter: "Green Wood Helmet",
+    dragoon: "Iron Helmet",
     artillery: "Cyan Wood Helmet",
     captain: "Gold Helmet",
   },
@@ -53,12 +58,22 @@ const UNIFORMS = {
   },
 };
 
+const ROLE_MSG = {
+  soldier: "🏹Musketeer",
+  sharpshooter: "🎯Sharpshooter",
+  artillery: "💥Artillery",
+  cavalry: "🐴Dragoon",
+  grenadier: "💣Grenadier",
+  captain: "👑Captain",
+};
+
 var gameState = {
   gameStarted: false,
   players: {},
   teams: {
     british: [],
     french: [],
+    spectator: [],
   },
   morale: {
     british: 0,
@@ -74,29 +89,25 @@ var gameState = {
 onPlayerJoin = (id) => {
   api.clearInventory(id);
 
-  const frenchCount = gameState.teams.french.length;
-  const britishCount = gameState.teams.british.length;
+  if (gameState.gameStarted) {
+    gameState.players[id] = {
+      role: null,
+      team: "spectator",
+      morale: null,
+      currentWeapon: null,
+      weaponSlot: null,
+    };
 
-  let team;
-
-  if (frenchCount < britishCount) {
-    team = "french";
-  } else if (britishCount < frenchCount) {
-    team = "british";
+    gameState.teams.spectator.push(id);
   } else {
-    team = Math.random() < 0.5 ? "french" : "british";
+    gameState.players[id] = {
+      role: null,
+      team: null,
+      morale: 100,
+      currentWeapon: null,
+      weaponSlot: null,
+    };
   }
-
-  gameState.players[id] = {
-    role: "soldier",
-    team: team,
-    morale: 100,
-    currentWeapon: null,
-    weaponSlot: null,
-  };
-
-  gameState.teams[team].push(id);
-  equipUniform(id);
 };
 
 onPlayerLeave = (id) => {
@@ -123,9 +134,12 @@ tick = () => {
   for (const id of ids) {
     const myPos = api.getPosition(id);
     const dists = [];
+    const player = gameState.players[id];
+    if (player.team === "spectator") continue;
 
     for (const other of ids) {
       if (other === id) continue;
+      if (gameState.players[other].team !== player.team) continue;
 
       const otherPos = api.getPosition(other);
 
@@ -138,8 +152,6 @@ tick = () => {
     }
 
     dists.sort((a, b) => a - b);
-
-    const player = gameState.players[id];
 
     const d1 = dists[0] ?? Infinity;
     const d2 = dists[1] ?? Infinity;
@@ -170,39 +182,20 @@ tick = () => {
 
       frenchMorale += player.morale;
       teamMsg = "🟦French";
-    } else {
+    } else if (player.team === "british") {
       if (blocks.includes("Blue Portal")) {
         gameState.capture.french += 0.01;
       }
 
       britishMorale += player.morale;
       teamMsg = "🟥British";
+    } else if (player.team === "spectator") {
+      teamMsg = "👁️Spectator";
+    } else {
+      teamMsg = "None";
     }
 
-    let roleMsg;
-
-    switch (player.role) {
-      case "soldier":
-        roleMsg = "🏹Musketeer";
-        break;
-      case "sharpshooter":
-        roleMsg = "🎯Sharpshooter";
-        break;
-      case "artillery":
-        roleMsg = "💥Artillery";
-        break;
-      case "cavalry":
-        roleMsg = "🐴Dragoon";
-        break;
-      case "grenadier":
-        roleMsg = "💣Grenadier";
-        break;
-      case "captain":
-        roleMsg = "👑Captain";
-        break;
-      default:
-        "";
-    }
+    let roleMsg = ROLE_MSG[player.role];
 
     api.setClientOption(
       id,
@@ -210,8 +203,8 @@ tick = () => {
       `Bloxd Muskets🏹
       Made by Yervweigh
 
-      Your Team: ${teamMsg}
-      Your Role: ${roleMsg}
+      Your Team: ${teamMsg ? teamMsg : "None"}
+      Your Role: ${roleMsg ? roleMsg : "None"}
 
       Current Morale: ${Math.ceil(player.morale)}
 
@@ -293,7 +286,7 @@ onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
 };
 
 onPlayerDamagingOtherPlayer = (attacker, damaged, _n, item) => {
-  if (gameState.players[attacker].team == gameState.players[damaged].team) {
+  if (gameState.players[attacker].team === gameState.players[damaged].team) {
     return "preventDamage";
   }
 };
@@ -383,9 +376,127 @@ function startReloadQTE(id, item, weapon) {
 function equipUniform(id) {
   const player = gameState.players[id];
 
-  api.setItemSlot(id, 46, UNIFORMS.helmet[player.role], 1);
-  api.setItemSlot(id, 47, UNIFORMS.chestplate[player.team], 1);
-  api.setItemSlot(id, 49, UNIFORMS.leggings[player.team], 1);
+  if (player.role !== null) {
+    api.setItemSlot(id, 46, UNIFORMS.helmet[player.role], 1);
+  }
+
+  if (player.team !== null) {
+    api.setItemSlot(id, 47, UNIFORMS.chestplate[player.team], 1);
+    api.setItemSlot(id, 49, UNIFORMS.leggings[player.team], 1);
+  }
 
   api.setItemSlot(id, 50, "Black Wood Boots", 1);
+
+  if (player.role === "dragoon") {
+    api.setItemSlot(id, 48, "White Wood Gauntlets", 1);
+  } else {
+    api.setItemSlot(id, 48, "Air", 1);
+  }
+}
+
+function startGame() {
+  if (gameState.gameStarted) {
+    return api.log("Error: game already started");
+  }
+
+  const ids = api.getPlayerIds();
+
+  if (ids.length < 6) {
+    return api.log("Error: not enough players");
+  }
+
+  const frenchTeam = [];
+  const britishTeam = [];
+  const unassigned = [];
+
+  for (const id of ids) {
+    const player = gameState.players[id];
+
+    switch (player.team) {
+      case "french":
+        frenchTeam.push(id);
+        break;
+      case "british":
+        britishTeam.push(id);
+        break;
+      default:
+        unassigned.push(id);
+    }
+  }
+
+  for (const id of unassigned) {
+    if (frenchTeam.length > britishTeam.length) {
+      britishTeam.push(id);
+    } else if (frenchTeam.length < britishTeam.length) {
+      frenchTeam.push(id);
+    } else {
+      if (Math.random() > 0.5) {
+        frenchTeam.push(id);
+        api.sendMessage(
+          id,
+          "Info: You have been randomly assigned to French team",
+          {
+            color: "cyan",
+          },
+        );
+      } else {
+        britishTeam.push(id);
+        api.sendMessage(
+          id,
+          "Info: You have been randomly assigned to British team",
+          {
+            color: "cyan",
+          },
+        );
+      }
+    }
+  }
+
+  let diff = frenchTeam.length - britishTeam.length;
+
+  if (Math.abs(diff) > 1) {
+    const biggerTeam = diff > 0 ? frenchTeam : britishTeam;
+    const smallerTeam = diff > 0 ? britishTeam : frenchTeam;
+    const msg = diff > 0 ? "British" : "French";
+
+    while (Math.abs(biggerTeam.length - smallerTeam.length) > 1) {
+      const movedPlayer = biggerTeam.pop();
+      smallerTeam.push(movedPlayer);
+
+      api.sendMessage(
+        movedPlayer,
+        `Info: You have been reassigned to ${msg} team`,
+        { color: "cyan" },
+      );
+    }
+  }
+
+  for (const id of frenchTeam) {
+    gameState.players[id].team = "french";
+    gameState.teams.french.push(id);
+    api.setPosition(id, FRENCH_CAMP_POS);
+  }
+
+  for (const id of britishTeam) {
+    gameState.players[id].team = "british";
+    gameState.teams.british.push(id);
+    api.setPosition(id, BRITISH_CAMP_POS);
+  }
+
+  gameState.gameStarted = true;
+}
+
+function endGame() {
+  if (!gameState.gameStarted) {
+    return api.log("Error: game not started");
+  }
+
+  gameState.gameStarted = false;
+}
+
+function shuffle(list) {
+  for (let i = list.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [list[i], list[j]] = [list[j], list[i]];
+  }
 }
