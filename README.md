@@ -1,4 +1,4 @@
-# bloxd_muskets
+# Bloxd Muskets
 
 This is an early verison of a project I am making that aims to create a napoleonic wars type game in Bloxd.io. For best experience use the texture pack. I kindly request that you don't use this on your own server before I have finished making this. When this is finished, there will be a really cool battle event with a lot of players that you wouldn't want to miss, and after that I will publish the game on the bloxd custom games menu so that everyone can play.
 
