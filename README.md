@@ -4,6 +4,20 @@ This is an early verison of a project I am making that aims to create a napoleon
 
 You can playtest this at https://bloxd.io/play/classic/bloxd_muskets.
 
+## Texture pack
+
+Use the texture pack to show custom musket and sabre models. If you don't, it would just show the default crossbow and sword.
+
+Here are the steps to use the texture pack.
+
+1. Download the texture pack by pressing the green button that says code and press download zip.
+2. Extract the zip.
+2. Go to https://bloxd.io (Note: sometimes it will only work if you do it from homescreen)
+3. Go to Settings > Texture Pack
+4. Select "custom"
+5. Drag one of the texture pack folders ("Muskets Texture Pack" or "Muskets Texture Pack v2") into the box. (Note: "Muskets Texture Pack" is built on top of the default bloxd texture pack while "Muskets Texture Pack v2" is built on top of default2)
+6. Click "apply" and reload the page
+
 ## How to play
 
 Your goal is to capture the other teams camp on the other side of the map. At the center, there is a neutral objective, that if captured, lets you respawn there instead of at camp. There is a morale system put in place to maintain somewhat historical accuracy and to encourage players to play and strategise as a team instead of just one player soloing the whole lobby while the rest of the team doesn't get to do much.
@@ -47,26 +61,3 @@ You can play in teams of 3-15. The role composition changes based on the amount 
 - 3 Players: 1 Musketeer, 1 Sharpshooter, 1 Captain
 - 7 Players: 3 Musketeer, 2 Sharpshooter, 1 Artillery, 1 Captain
 - 15 Players: 7 Musketeer, 3 Sharpshooter, 2 Grenadiers, 1 Artillery, 1 Dragoon, 1 Captain
-
-## Texture pack
-
-Use the texture pack to show custom musket and sabre models. If you don't, it would just show the default crossbow and sword.
-
-Here are the steps to use the texture pack.
-
-1. Download the texture pack
-
-Either download the zip file from this website and extract it or clone the repo with:
-
-```sh
-git clone https://github.com/Eerwigy/bloxd_muskets.git
-```
-
-2. Go to https://bloxd.io
-3. Go to Settings > Texture Pack
-4. Select "custom"
-5. Drag one of the texture pack folders ("Muskets Texture Pack" or "Muskets Texture Pack v2") into the box
-
-Note: "Muskets Texture Pack" is built on top of the default bloxd texture pack while "Muskets Texture Pack v2" is built on top of default2.
-
-6. Click "apply" and reload the page
