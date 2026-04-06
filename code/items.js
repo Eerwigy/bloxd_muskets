@@ -59,3 +59,12 @@ api.giveItem(myId, "Diamond Crossbow", 1, {
     "muskets/name": "arty",
   },
 });
+
+api.giveItem(myId, "Iron Crossbow", 1, {
+  customDisplayName: "Flintlock Pistol",
+  customDescription: "A very gentlemanly firearm",
+  customAttributes: {
+    "muskets/name": "pistol",
+    enchantmentTier: "Tier 4",
+  },
+});

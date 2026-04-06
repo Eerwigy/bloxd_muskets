@@ -7,14 +7,13 @@ const FRENCH_CAMP_POS = [1051.5, 51, 1012.5];
 const BRITISH_CAMP_POS = [1049.5, 51, 1388.5];
 const NEUTRAL_OBJ_POS = [1041.5, 51, 1212.5];
 
-const WEAPONS = {
+const FIREARMS = {
   smoothbore: {
     speed: 1.5,
     damage: 3,
     reloadSpeed: 10,
     loadedItem: "Wood Crossbow Charged",
     unloadedItem: "Wood Crossbow",
-    projectile: "Pebble",
     message: "Load your musket!",
   },
 
@@ -24,19 +23,27 @@ const WEAPONS = {
     reloadSpeed: 8,
     loadedItem: "Stone Crossbow Charged",
     unloadedItem: "Stone Crossbow",
-    projectile: "Pebble",
     message: "Load your musket!",
   },
 
-  arty: {
-    speed: 3,
-    damage: 2,
-    reloadSpeed: 3,
-    loadedItem: "Diamond Crossbow Charged",
-    unloadedItem: "Diamond Crossbow",
-    projectile: "Fireball",
-    message: "Load your cannon!",
+  pistol: {
+    speed: 1,
+    damage: 3,
+    reloadSpeed: 15,
+    loadedItem: "Iron Crossbow Charged",
+    unloadedItem: "Iron Crossbow",
+    message: "Load your pistol!",
   },
+};
+
+arty = {
+  speed: 3,
+  damage: 2,
+  reloadSpeed: 3,
+  loadedItem: "Diamond Crossbow Charged",
+  unloadedItem: "Diamond Crossbow",
+  projectile: "Fireball",
+  message: "Load your cannon!",
 };
 
 const UNIFORMS = {
@@ -272,7 +279,7 @@ onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
     }
   }
 
-  const weapon = WEAPONS[weaponName];
+  const weapon = FIREARMS[weaponName];
 
   if (!weapon) return "preventAction";
 
@@ -328,7 +335,7 @@ function fireWeapon(id, item, attrs, weapon) {
 
   api.attemptCreateThrowable(
     id,
-    weapon.projectile,
+    "Pebble",
     [x, y + 1.5, z],
     dir,
     weapon.speed,
