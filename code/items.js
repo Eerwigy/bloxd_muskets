@@ -6,6 +6,7 @@ api.giveItem(myId, "Wood Crossbow", 1, {
     enchantmentTier: "Tier 3",
     enchantments: {
       Damage: 10,
+      "Horizontal Knockback": 3,
     },
   },
 });
@@ -18,6 +19,7 @@ api.giveItem(myId, "Stone Crossbow", 1, {
     enchantmentTier: "Tier 4",
     enchantments: {
       Damage: 5,
+      "Horizontal Knockback": 2,
     },
   },
 });
