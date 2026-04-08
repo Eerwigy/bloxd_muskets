@@ -36,7 +36,7 @@ const FIREARMS = {
   },
 };
 
-arty = {
+const ARTY = {
   speed: 3,
   damage: 2,
   reloadSpeed: 3,
@@ -251,32 +251,34 @@ onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
   const weaponName = attrs["muskets/name"] || "";
 
   if (weaponName.startsWith("order/")) {
-    let order = weaponName.slice(6);
+    executeOrder(weaponName);
+  }
 
-    switch (order) {
-      case "advance":
-        api.broadcastMessage("Your captain is ordering you to ADVANCE", {
-          color: "cornflower",
-        });
-        break;
-      case "charge":
-        api.broadcastMessage("Your captain is ordering you to CHARGE", {
-          color: "orange",
-        });
-        break;
-      case "hold":
-        api.broadcastMessage("Your captain is ordering you to HOLD POSITION", {
-          color: "yellow",
-        });
-        break;
-      case "fallback":
-        api.broadcastMessage("Your captain is ordering you to FALLBACK", {
-          color: "grey",
-        });
-        break;
-      default:
-        api.log("Error: Invalid Order");
+  if (weaponName === "arty") {
+    if (attrs["muskets/loaded"]) {
+      return "preventAction";
     }
+
+    const moraleFactor = 0.5 + player.morale * 0.01;
+
+    api.addQTE(id, {
+      type: "progressBar",
+      parameters: {
+        progressStartValue: 10,
+        progressDecreasePerTick: 0.5,
+        progressPerClick: 3 * moraleFactor,
+        canFail: true,
+        description: [{ str: "Load your cannon" }],
+        clickIcon: "fa-solid fa-computer-mouse",
+        scale: 1,
+        rotation: 15,
+      },
+    });
+
+    player.currentWeapon = ARTY;
+    player.weaponSlot = api.getSelectedInventorySlotI(id);
+
+    return "preventAction";
   }
 
   const weapon = FIREARMS[weaponName];
@@ -318,6 +320,35 @@ onPlayerFinishQTE = (id, qteId, succeed) => {
   player.currentWeapon = null;
   player.weaponSlot = null;
 };
+
+function executeOrder(weaponName) {
+  let order = weaponName.slice(6);
+
+  switch (order) {
+    case "advance":
+      api.broadcastMessage("Your captain is ordering you to ADVANCE", {
+        color: "cornflower",
+      });
+      break;
+    case "charge":
+      api.broadcastMessage("Your captain is ordering you to CHARGE", {
+        color: "orange",
+      });
+      break;
+    case "hold":
+      api.broadcastMessage("Your captain is ordering you to HOLD POSITION", {
+        color: "yellow",
+      });
+      break;
+    case "fallback":
+      api.broadcastMessage("Your captain is ordering you to FALLBACK", {
+        color: "grey",
+      });
+      break;
+    default:
+      api.log("Error: Invalid Order");
+  }
+}
 
 function fireWeapon(id, item, attrs, weapon) {
   const slot = api.getSelectedInventorySlotI(id);
