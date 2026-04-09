@@ -1,7 +1,10 @@
 // Bloxd Muskets🏹
 // Made by Yervweigh
-//
 // Licensed under Apache-2.0
+
+// =================
+// Constants
+// =================
 
 const FRENCH_CAMP_POS = [1051.5, 51, 1012.5];
 const BRITISH_CAMP_POS = [1049.5, 51, 1388.5];
@@ -37,13 +40,8 @@ const FIREARMS = {
 };
 
 const ARTY = {
-  speed: 3,
-  damage: 2,
-  reloadSpeed: 3,
   loadedItem: "Diamond Crossbow Charged",
   unloadedItem: "Diamond Crossbow",
-  projectile: "Fireball",
-  message: "Load your cannon!",
 };
 
 const UNIFORMS = {
@@ -74,6 +72,10 @@ const ROLE_MSG = {
   captain: "👑Captain",
 };
 
+// =================
+// Game State
+// =================
+
 var gameState = {
   gameStarted: false,
   players: {},
@@ -92,6 +94,10 @@ var gameState = {
     neutral: 0,
   },
 };
+
+// =================
+// Callbacks
+// =================
 
 onPlayerJoin = (id) => {
   api.clearInventory(id);
@@ -121,14 +127,7 @@ onPlayerLeave = (id) => {
   const player = gameState.players[id];
   if (!player) return;
 
-  const teamArray = gameState.teams[player.team];
-  if (teamArray) {
-    const index = teamArray.indexOf(id);
-    if (index !== -1) {
-      teamArray.splice(index, 1);
-    }
-  }
-
+  removeFromArray(gameState.teams[player.team] || [], id);
   delete gameState.players[id];
 };
 
@@ -143,85 +142,43 @@ tick = () => {
     const dists = [];
     const player = gameState.players[id];
     if (player.team === "spectator") continue;
-
     for (const other of ids) {
       if (other === id) continue;
       if (gameState.players[other].team !== player.team) continue;
-
       const otherPos = api.getPosition(other);
-
       const distSq =
         (otherPos[0] - myPos[0]) ** 2 +
         (otherPos[1] - myPos[1]) ** 2 +
         (otherPos[2] - myPos[2]) ** 2;
-
       dists.push(distSq);
     }
-
     dists.sort((a, b) => a - b);
-
     const d1 = dists[0] ?? Infinity;
     const d2 = dists[1] ?? Infinity;
-
     let proximity;
-
     if (d1 <= 9 && d2 <= 9) {
       proximity = 50;
     } else {
       const d = (Math.sqrt(d1) + Math.sqrt(d2)) * 0.5;
-
       if (d >= 20) {
         proximity = 0;
       } else {
         proximity = (1 - (d - 3) / (20 - 3)) * 50;
       }
     }
-
     player.morale = proximity + api.getHealth(id) * 0.5;
-
-    let blocks = api.getBlockTypesPlayerStandingOn(id);
-    let teamMsg;
-
     if (player.team === "french") {
-      if (blocks.includes("Red Portal")) {
+      if (false) {
         gameState.capture.british += 0.01;
       }
-
       frenchMorale += player.morale;
-      teamMsg = "🟦French";
     } else if (player.team === "british") {
-      if (blocks.includes("Blue Portal")) {
+      if (false) {
         gameState.capture.french += 0.01;
       }
-
       britishMorale += player.morale;
-      teamMsg = "🟥British";
-    } else if (player.team === "spectator") {
-      teamMsg = "👁️Spectator";
-    } else {
-      teamMsg = "None";
     }
-
-    let roleMsg = ROLE_MSG[player.role];
-
-    api.setClientOption(
-      id,
-      "RightInfoText",
-      `Bloxd Muskets🏹
-      Made by Yervweigh
-
-      Your Team: ${teamMsg ? teamMsg : "None"}
-      Your Role: ${roleMsg ? roleMsg : "None"}
-
-      Current Morale: ${Math.ceil(player.morale)}
-
-      Teams Average Morale:
-      🟦${Math.ceil(gameState.morale.french)} - ${Math.ceil(gameState.morale.british)}🟥
-
-      Capture progress:
-      🟦${Math.floor(gameState.capture.french)}% - ${Math.floor(gameState.capture.british)}%🟥
-      `,
-    );
+    updateUi(id);
   }
 
   gameState.morale.french =
@@ -249,46 +206,20 @@ onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
   if (!attrs) return "preventAction";
 
   const weaponName = attrs["muskets/name"] || "";
+  const loaded = attrs["muskets/loaded"];
 
-  if (weaponName.startsWith("order/")) {
-    executeOrder(weaponName);
-  }
+  if (weaponName.startsWith("order/")) executeOrder(weaponName);
 
-  if (weaponName === "arty") {
-    if (attrs["muskets/loaded"]) {
-      return "preventAction";
-    }
-
-    const moraleFactor = 0.5 + player.morale * 0.01;
-
-    api.addQTE(id, {
-      type: "progressBar",
-      parameters: {
-        progressStartValue: 10,
-        progressDecreasePerTick: 0.5,
-        progressPerClick: 3 * moraleFactor,
-        canFail: true,
-        description: [{ str: "Load your cannon" }],
-        clickIcon: "fa-solid fa-computer-mouse",
-        scale: 1,
-        rotation: 15,
-      },
-    });
-
-    player.currentWeapon = ARTY;
-    player.weaponSlot = api.getSelectedInventorySlotI(id);
-
-    return "preventAction";
-  }
+  if (weaponName === "arty" && !loaded) reloadCannon(id, item);
 
   const weapon = FIREARMS[weaponName];
 
   if (!weapon) return "preventAction";
 
-  if (attrs["muskets/loaded"]) {
+  if (loaded) {
     fireWeapon(id, item, attrs, weapon);
   } else {
-    startReloadQTE(id, item, weapon);
+    reloadFirearm(id, item, weapon);
   }
 
   return "preventAction";
@@ -321,110 +252,9 @@ onPlayerFinishQTE = (id, qteId, succeed) => {
   player.weaponSlot = null;
 };
 
-function executeOrder(weaponName) {
-  let order = weaponName.slice(6);
-
-  switch (order) {
-    case "advance":
-      api.broadcastMessage("Your captain is ordering you to ADVANCE", {
-        color: "cornflower",
-      });
-      break;
-    case "charge":
-      api.broadcastMessage("Your captain is ordering you to CHARGE", {
-        color: "orange",
-      });
-      break;
-    case "hold":
-      api.broadcastMessage("Your captain is ordering you to HOLD POSITION", {
-        color: "yellow",
-      });
-      break;
-    case "fallback":
-      api.broadcastMessage("Your captain is ordering you to FALLBACK", {
-        color: "grey",
-      });
-      break;
-    default:
-      api.log("Error: Invalid Order");
-  }
-}
-
-function fireWeapon(id, item, attrs, weapon) {
-  const slot = api.getSelectedInventorySlotI(id);
-
-  attrs["muskets/loaded"] = false;
-
-  api.setItemSlot(id, slot, weapon.unloadedItem, 1, item.attributes, true);
-
-  const [x, y, z] = api.getPosition(id);
-  const { dir } = api.getPlayerFacingInfo(id);
-  const morale = gameState.players[id]?.morale;
-
-  // 100 -> 1.5x, 0 -> 0.5x
-  const moraleFactor = 0.5 + morale * 0.01;
-
-  api.attemptCreateThrowable(
-    id,
-    "Pebble",
-    [x, y + 1.5, z],
-    dir,
-    weapon.speed,
-    weapon.damage * moraleFactor,
-    0.5,
-  );
-
-  api.playParticleEffect({
-    presetId: "lightGrayFirecrackerSmall",
-    pos1: [x, y + 1, z],
-    pos2: [x, y + 2, z],
-  });
-}
-
-function startReloadQTE(id, item, weapon) {
-  const player = gameState.players[id];
-
-  // 100 -> 1.5x, 0 -> 0.5x
-  const moraleFactor = 0.5 + player.morale * 0.01;
-
-  const qteId = api.addQTE(id, {
-    type: "progressBar",
-    parameters: {
-      progressStartValue: 10,
-      progressDecreasePerTick: 0.5,
-      progressPerClick: weapon.reloadSpeed * moraleFactor,
-      canFail: true,
-      description: [{ str: weapon.message }],
-      clickIcon: "fa-solid fa-computer-mouse",
-      scale: 1,
-      rotation: 15,
-    },
-  });
-
-  player.currentWeapon = weapon;
-  player.weaponSlot = api.getSelectedInventorySlotI(id);
-}
-
-function equipUniform(id) {
-  const player = gameState.players[id];
-
-  if (player.role !== null) {
-    api.setItemSlot(id, 46, UNIFORMS.helmet[player.role], 1);
-  }
-
-  if (player.team !== null) {
-    api.setItemSlot(id, 47, UNIFORMS.chestplate[player.team], 1);
-    api.setItemSlot(id, 49, UNIFORMS.leggings[player.team], 1);
-  }
-
-  api.setItemSlot(id, 50, "Black Wood Boots", 1);
-
-  if (player.role === "dragoon") {
-    api.setItemSlot(id, 48, "White Wood Gauntlets", 1);
-  } else {
-    api.setItemSlot(id, 48, "Air", 1);
-  }
-}
+// =================
+// Game loop
+// =================
 
 function startGame() {
   if (gameState.gameStarted) {
@@ -526,9 +356,186 @@ function endGame() {
   gameState.gameStarted = false;
 }
 
-function shuffle(list) {
-  for (let i = list.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [list[i], list[j]] = [list[j], list[i]];
+// =================
+// UI
+// =================
+
+function updateUi(id) {
+  const player = gameState.players[id];
+  const roleMsg = ROLE_MSG[player.role];
+
+  api.setClientOption(
+    id,
+    "RightInfoText",
+    `Bloxd Muskets🏹
+      Made by Yervweigh
+
+      Your Team: ${
+        {
+          french: "🟦French",
+          british: "🟥British",
+          spectator: "👁️Spectator",
+        }[player.team] || "None"
+      }
+      Your Role: ${roleMsg ? roleMsg : "None"}
+
+      Current Morale: ${Math.ceil(player.morale)}
+
+      Teams Average Morale:
+      🟦${Math.ceil(gameState.morale.french)} - ${Math.ceil(gameState.morale.british)}🟥
+
+      Capture progress:
+      🟦${Math.floor(gameState.capture.french)}% - ${Math.floor(gameState.capture.british)}%🟥
+      `,
+  );
+}
+
+// =================
+// Weapon functions
+// =================
+
+function executeOrder(weaponName) {
+  let order = weaponName.slice(6);
+
+  switch (order) {
+    case "advance":
+      api.broadcastMessage("Your captain is ordering you to ADVANCE", {
+        color: "cornflower",
+      });
+      break;
+    case "charge":
+      api.broadcastMessage("Your captain is ordering you to CHARGE", {
+        color: "orange",
+      });
+      break;
+    case "hold":
+      api.broadcastMessage("Your captain is ordering you to HOLD POSITION", {
+        color: "yellow",
+      });
+      break;
+    case "fallback":
+      api.broadcastMessage("Your captain is ordering you to FALLBACK", {
+        color: "grey",
+      });
+      break;
+    default:
+      api.log("Error: Invalid Order");
   }
+}
+
+function fireWeapon(id, item, attrs, weapon) {
+  const slot = api.getSelectedInventorySlotI(id);
+
+  attrs["muskets/loaded"] = false;
+
+  api.setItemSlot(id, slot, weapon.unloadedItem, 1, item.attributes, true);
+
+  const [x, y, z] = api.getPosition(id);
+  const { dir } = api.getPlayerFacingInfo(id);
+  const morale = gameState.players[id]?.morale;
+
+  // 100 -> 1.5x, 0 -> 0.5x
+  const moraleFactor = 0.5 + morale * 0.01;
+
+  api.attemptCreateThrowable(
+    id,
+    "Pebble",
+    [x, y + 1.5, z],
+    dir,
+    weapon.speed,
+    weapon.damage * moraleFactor,
+    0.5,
+  );
+
+  api.playParticleEffect({
+    presetId: "lightGrayFirecrackerSmall",
+    pos1: [x, y + 1, z],
+    pos2: [x, y + 2, z],
+  });
+}
+
+function reloadFirearm(id, item, weapon) {
+  const player = gameState.players[id];
+
+  // 100 -> 1.5x, 0 -> 0.5x
+  const moraleFactor = 0.5 + player.morale * 0.01;
+
+  const qteId = api.addQTE(id, {
+    type: "progressBar",
+    parameters: {
+      progressStartValue: 10,
+      progressDecreasePerTick: 0.5,
+      progressPerClick: weapon.reloadSpeed * moraleFactor,
+      canFail: true,
+      description: [{ str: weapon.message }],
+      clickIcon: "fa-solid fa-computer-mouse",
+      scale: 1,
+      rotation: 15,
+    },
+  });
+
+  player.currentWeapon = weapon;
+  player.weaponSlot = api.getSelectedInventorySlotI(id);
+}
+
+function reloadCannon(id) {
+  const player = gameState.players[id];
+
+  api.addQTE(id, {
+    type: "progressBar",
+    parameters: {
+      progressStartValue: 10,
+      progressDecreasePerTick: 0.5,
+      progressPerClick: 3 * getMoraleFactor(player.morale),
+      canFail: true,
+      description: [{ str: "Load your cannon" }],
+      clickIcon: "fa-solid fa-computer-mouse",
+      scale: 1,
+      rotation: 15,
+    },
+  });
+
+  player.currentWeapon = ARTY;
+  player.weaponSlot = api.getSelectedInventorySlotI(id);
+}
+
+function equipUniform(id) {
+  const player = gameState.players[id];
+
+  if (player.role !== null) {
+    api.setItemSlot(id, 46, UNIFORMS.helmet[player.role], 1);
+  }
+
+  if (player.team !== null) {
+    api.setItemSlot(id, 47, UNIFORMS.chestplate[player.team], 1);
+    api.setItemSlot(id, 49, UNIFORMS.leggings[player.team], 1);
+  }
+
+  api.setItemSlot(id, 50, "Black Wood Boots", 1);
+
+  if (player.role === "dragoon") {
+    api.setItemSlot(id, 48, "White Wood Gauntlets", 1);
+  } else {
+    api.setItemSlot(id, 48, "Air", 1);
+  }
+}
+
+// =================
+// Helpers
+// =================
+
+function removeFromArray(arr, val) {
+  const i = arr.indexOf(val);
+  if (i !== -1) arr.splice(i, 1);
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+function getMoraleFactor(morale) {
+  return 0.5 + morale * 0.01;
 }
