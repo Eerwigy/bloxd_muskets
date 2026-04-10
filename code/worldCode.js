@@ -211,7 +211,7 @@ onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
   if (weaponName.startsWith("order/")) executeOrder(weaponName);
 
   if (weaponName === "arty" && !loaded) reloadCannon(id);
-  if (weaponName.startsWith("shoot/")) fireCannon(id, weaponName, attrs);
+  if (weaponName.startsWith("shoot/")) fireCannon(id, weaponName);
 
   const weapon = FIREARMS[weaponName];
 
@@ -248,9 +248,6 @@ onPlayerFinishQTE = (id, qteId, succeed) => {
       true,
     );
   }
-
-  player.currentWeapon = null;
-  player.weaponSlot = null;
 };
 
 // =================
@@ -452,9 +449,27 @@ function fireWeapon(id, item, attrs, weapon) {
   });
 }
 
-function fireCannon(id, shot, attrs) {
+function fireCannon(id, shot) {
   const player = gameState.players[id];
-  attrs["muskets/loaded"] = false;
+
+  if (player.currentWeapon !== ARTY) return;
+
+  const item = api.getItemSlot(id, player.weaponSlot);
+
+  if (!item?.attributes?.customAttributes["muskets/loaded"]) {
+    return api.sendMessage(id, "Your cannon is not loaded!", { color: "cyan" });
+  }
+
+  item.attributes.customAttributes["muskets/loaded"] = false;
+
+  api.setItemSlot(
+    id,
+    player.weaponSlot,
+    ARTY.unloadedItem,
+    1,
+    item.attributes,
+    true,
+  );
 
   const [x, y, z] = api.getPosition(id);
   const { dir } = api.getPlayerFacingInfo(id);
@@ -511,16 +526,13 @@ function reloadCannon(id) {
   const player = gameState.players[id];
 
   api.addQTE(id, {
-    type: "progressBar",
+    type: "rhythmClick",
     parameters: {
-      progressStartValue: 10,
-      progressDecreasePerTick: 0.5,
-      progressPerClick: 3 * getMoraleFactor(player.morale),
-      canFail: true,
-      description: [{ str: "Load your cannon" }],
-      clickIcon: "fa-solid fa-computer-mouse",
-      scale: 1,
-      rotation: 15,
+      requiredSuccesses: 10,
+      shrinkDurationMs: 1200,
+      toleranceFraction: 0.15 * getMoraleFactor(player.morale),
+      maxMisses: 3,
+      label: [{ str: "Load your cannon" }],
     },
   });
 
