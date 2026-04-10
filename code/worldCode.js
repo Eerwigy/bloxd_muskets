@@ -210,7 +210,8 @@ onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
 
   if (weaponName.startsWith("order/")) executeOrder(weaponName);
 
-  if (weaponName === "arty" && !loaded) reloadCannon(id, item);
+  if (weaponName === "arty" && !loaded) reloadCannon(id);
+  if (weaponName.startsWith("shoot/")) fireCannon(id, weaponName, attrs);
 
   const weapon = FIREARMS[weaponName];
 
@@ -219,7 +220,7 @@ onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
   if (loaded) {
     fireWeapon(id, item, attrs, weapon);
   } else {
-    reloadFirearm(id, item, weapon);
+    reloadFirearm(id, weapon);
   }
 
   return "preventAction";
@@ -434,16 +435,13 @@ function fireWeapon(id, item, attrs, weapon) {
   const { dir } = api.getPlayerFacingInfo(id);
   const morale = gameState.players[id]?.morale;
 
-  // 100 -> 1.5x, 0 -> 0.5x
-  const moraleFactor = 0.5 + morale * 0.01;
-
   api.attemptCreateThrowable(
     id,
     "Pebble",
     [x, y + 1.5, z],
     dir,
     weapon.speed,
-    weapon.damage * moraleFactor,
+    weapon.damage * getMoraleFactor(morale),
     0.5,
   );
 
@@ -454,18 +452,49 @@ function fireWeapon(id, item, attrs, weapon) {
   });
 }
 
-function reloadFirearm(id, item, weapon) {
+function fireCannon(id, shot, attrs) {
+  const player = gameState.players[id];
+  attrs["muskets/loaded"] = false;
+
+  const [x, y, z] = api.getPosition(id);
+  const { dir } = api.getPlayerFacingInfo(id);
+  const moraleFactor = getMoraleFactor(player.morale);
+
+  if (shot === "shoot/roundshot") {
+    api.attemptCreateThrowable(
+      id,
+      "Fireball",
+      [x, y + 1.5, z],
+      dir,
+      5,
+      10 * moraleFactor,
+      1,
+    );
+  } else if (shot === "shoot/grapeshot") {
+    const damage = 2 * moraleFactor;
+    for (let i = 0; i < 6; i += 1) {
+      api.attemptCreateThrowable(
+        id,
+        "Reinforced Pebble",
+        [x, y + 1.5, z],
+        deviate(dir, 0.25),
+        1,
+        damage,
+        1,
+      );
+    }
+  }
+}
+
+function reloadFirearm(id, weapon) {
   const player = gameState.players[id];
 
-  // 100 -> 1.5x, 0 -> 0.5x
-  const moraleFactor = 0.5 + player.morale * 0.01;
-
-  const qteId = api.addQTE(id, {
+  api.addQTE(id, {
     type: "progressBar",
     parameters: {
       progressStartValue: 10,
       progressDecreasePerTick: 0.5,
-      progressPerClick: weapon.reloadSpeed * moraleFactor,
+      progressPerClick: weapon.reloadSpeed * getMoraleFactor(player.morale),
       canFail: true,
       description: [{ str: weapon.message }],
       clickIcon: "fa-solid fa-computer-mouse",
@@ -523,6 +552,14 @@ function equipUniform(id) {
 // =================
 // Helpers
 // =================
+
+function deviate(dir, strength = 1) {
+  return [
+    dir[0] + (Math.random() - 0.5) * strength,
+    dir[1] + (Math.random() - 0.5) * strength,
+    dir[2] + (Math.random() - 0.5) * strength,
+  ];
+}
 
 function removeFromArray(arr, val) {
   const i = arr.indexOf(val);
