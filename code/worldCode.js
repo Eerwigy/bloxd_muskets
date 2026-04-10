@@ -528,11 +528,11 @@ function reloadCannon(id) {
   api.addQTE(id, {
     type: "rhythmClick",
     parameters: {
-      requiredSuccesses: 10,
-      shrinkDurationMs: 1200,
+      requiredSuccesses: 6,
+      shrinkDurationMs: 800,
       toleranceFraction: 0.15 * getMoraleFactor(player.morale),
       maxMisses: 3,
-      label: [{ str: "Load your cannon" }],
+      label: [{ str: "Load your cannon!" }],
     },
   });
 
