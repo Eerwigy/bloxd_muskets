@@ -490,6 +490,8 @@ function fireWeapon(id, item, attrs, weapon) {
     0.5,
   );
 
+  api.applyImpulse(id, -dir[0] * 10, -dir[1] * 10, -dir[2] * 10);
+
   api.playParticleEffect({
     presetId: "lightGrayFirecrackerSmall",
     pos1: [x, y + 1, z],
