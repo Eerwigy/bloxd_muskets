@@ -482,7 +482,10 @@ function fireWeapon(id, item, attrs, weapon) {
     id,
     "Pebble",
     [x, y + 1.5, z],
-    dir,
+    deviate(
+      dir,
+      weapon === FIREARMS["rifle"] ? 0 : 0.2 - 0.2 * (morale * 0.01),
+    ),
     weapon.speed,
     weapon.damage * getMoraleFactor(morale),
     0.5,
@@ -532,7 +535,7 @@ function fireCannon(id, shot) {
       1,
     );
   } else if (shot === "shoot/grapeshot") {
-    const damage = 2 * moraleFactor;
+    const damage = 6 * moraleFactor;
     for (let i = 0; i < 6; i += 1) {
       api.attemptCreateThrowable(
         id,
