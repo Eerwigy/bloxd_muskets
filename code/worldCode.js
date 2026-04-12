@@ -211,7 +211,6 @@ tick = () => {
 onPlayerKilledOtherPlayer = (killerId, victimId) => {
   gameState.kills[killerId] = (gameState.kills[killerId] || 0) + 1;
   gameState.deaths[victimId] = (gameState.deaths[victimId] || 0) + 1;
-  updateLeaderboard();
 };
 
 onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
@@ -542,12 +541,20 @@ function fireCannon(id, shot) {
         "Reinforced Pebble",
         [x, y + 1.5, z],
         deviate(dir, 0.25),
-        1,
+        3,
         damage,
         1,
       );
     }
   }
+
+  api.applyImpulse(id, -dir[0] * 20, -dir[1] * 20, -dir[2] * 20);
+
+  api.playParticleEffect({
+    presetId: "lightGrayFirecrackerLarge",
+    pos1: [x, y + 1, z],
+    pos2: [x, y + 2, z],
+  });
 }
 
 function reloadFirearm(id, weapon) {
