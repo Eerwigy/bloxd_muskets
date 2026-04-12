@@ -77,6 +77,7 @@ const ROLE_MSG = {
 // =================
 
 var gameState = {
+  tickn: 0,
   gameStarted: false,
   players: {},
   teams: {
@@ -93,6 +94,8 @@ var gameState = {
     french: 0,
     neutral: 0,
   },
+  kills: {},
+  deaths: {},
 };
 
 // =================
@@ -121,6 +124,13 @@ onPlayerJoin = (id) => {
       weaponSlot: null,
     };
   }
+
+  api.setClientOption(id, "lobbyLeaderboardInfo", {
+    name: { displayName: "Name", sortPriority: 0 },
+    team: { displayName: "Team", sortPriority: 3 },
+    kills: { displayName: "Kills", sortPriority: 2 },
+    deaths: { displayName: "Deaths", sortPriority: 1 },
+  });
 };
 
 onPlayerLeave = (id) => {
@@ -129,6 +139,8 @@ onPlayerLeave = (id) => {
 
   removeFromArray(gameState.teams[player.team] || [], id);
   delete gameState.players[id];
+  delete gameState.kills[id];
+  delete gameState.deaths[id];
 };
 
 tick = () => {
@@ -178,7 +190,7 @@ tick = () => {
       }
       britishMorale += player.morale;
     }
-    updateUi(id);
+    updateSidebar(id);
   }
 
   gameState.morale.french =
@@ -190,6 +202,16 @@ tick = () => {
     gameState.teams.british.length > 0
       ? britishMorale / gameState.teams.british.length
       : 0;
+
+  if (gameState.tickn % 100 === 0) updateLeaderboard();
+
+  gameState.tickn += 1;
+};
+
+onPlayerKilledOtherPlayer = (killerId, victimId) => {
+  gameState.kills[killerId] = (gameState.kills[killerId] || 0) + 1;
+  gameState.deaths[victimId] = (gameState.deaths[victimId] || 0) + 1;
+  updateLeaderboard();
 };
 
 onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
@@ -358,7 +380,7 @@ function endGame() {
 // UI
 // =================
 
-function updateUi(id) {
+function updateSidebar(id) {
   const player = gameState.players[id];
   const roleMsg = ROLE_MSG[player.role];
 
@@ -386,6 +408,30 @@ function updateUi(id) {
       🟦${Math.floor(gameState.capture.french)}% - ${Math.floor(gameState.capture.british)}%🟥
       `,
   );
+}
+
+function updateLeaderboard() {
+  for (const id of api.getPlayerIds()) {
+    api.setTargetedPlayerSettingForEveryone(
+      id,
+      "lobbyLeaderboardValues",
+      {
+        team: capitalizeFirstLetter(gameState.players[id].team || "None"),
+        kills: gameState.kills[id] || 0,
+        deaths: gameState.deaths[id] || 0,
+      },
+      true,
+    );
+
+    api.setTargetedPlayerSettingForEveryone(
+      id,
+      "colorInLobbyLeaderboard",
+      {
+        french: "#0069ff",
+        british: "#ff2222",
+      }[gameState.players[id].team] || "grey",
+    );
+  }
 }
 
 // =================
@@ -587,4 +633,8 @@ function shuffle(arr) {
 
 function getMoraleFactor(morale) {
   return 0.5 + morale * 0.01;
+}
+
+function capitalizeFirstLetter(str) {
+  return String(str).charAt(0).toUpperCase() + String(str).slice(1);
 }
