@@ -122,6 +122,7 @@ onPlayerJoin = (id) => {
     team: { displayName: "Team", sortPriority: 3 },
     kills: { displayName: "Kills", sortPriority: 2 },
     deaths: { displayName: "Deaths", sortPriority: 1 },
+    ratio: { displayName: "K/D Ratio", sortPriority: 4 },
   });
 };
 
@@ -425,13 +426,16 @@ function updateSidebar(id) {
 
 function updateLeaderboard() {
   for (const id of api.getPlayerIds()) {
+    const kills = gameState.kills[id] || 0;
+    const deaths = gameState.deaths[id] || 0;
     api.setTargetedPlayerSettingForEveryone(
       id,
       "lobbyLeaderboardValues",
       {
         team: capitalizeFirstLetter(gameState.players[id].team || "None"),
-        kills: gameState.kills[id] || 0,
-        deaths: gameState.deaths[id] || 0,
+        kills: kills,
+        deaths: deaths,
+        ratio: kills / deaths,
       },
       true,
     );
