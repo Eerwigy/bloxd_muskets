@@ -435,7 +435,7 @@ function updateLeaderboard() {
         team: capitalizeFirstLetter(gameState.players[id].team || "None"),
         kills: kills,
         deaths: deaths,
-        ratio: kills / deaths,
+        ratio: (kills / deaths) || 0,
       },
       true,
     );
