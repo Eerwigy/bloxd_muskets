@@ -215,8 +215,13 @@ onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
 
   if (weaponName.startsWith("order/")) executeOrder(weaponName);
 
-  if (weaponName === "arty" && !loaded) reloadCannon(id);
-  if (weaponName.startsWith("shoot/")) fireCannon(id, weaponName);
+  if (weaponName === "arty"){
+    if (loaded) {
+      fireCannon(id, item, attrs);
+    } else {
+      reloadCannon(id);
+    }
+  }
 
   const weapon = FIREARMS[weaponName];
 
@@ -225,7 +230,7 @@ onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
   if (loaded) {
     fireWeapon(id, item, attrs, weapon);
   } else {
-    reloadFirearm(id, weapon);
+    reloadFirearm(id, item, attrs, weapon);
   }
 
   return "preventAction";
@@ -517,22 +522,15 @@ function fireWeapon(id, item, attrs, weapon) {
   });
 }
 
-function fireCannon(id, shot) {
+function fireCannon(id, item, attrs) {
   const player = gameState.players[id];
+  const slot = api.getSelectedInventorySlotI(id);
 
-  if (player.currentWeapon !== ARTY) return;
-
-  const item = api.getItemSlot(id, player.weaponSlot);
-
-  if (!item?.attributes?.customAttributes["muskets/loaded"]) {
-    return api.sendMessage(id, "Your cannon is not loaded!", { color: "cyan" });
-  }
-
-  item.attributes.customAttributes["muskets/loaded"] = false;
+  attrs["muskets/loaded"] = false;
 
   api.setItemSlot(
     id,
-    player.weaponSlot,
+    slot,
     ARTY.unloadedItem,
     1,
     item.attributes,
@@ -542,8 +540,9 @@ function fireCannon(id, shot) {
   const [x, y, z] = api.getPosition(id);
   const { dir } = api.getPlayerFacingInfo(id);
   const moraleFactor = getMoraleFactor(player.morale);
+  const shot = attrs["muskets/shot"];
 
-  if (shot === "shoot/roundshot") {
+  if (shot === "roundshot") {
     api.attemptCreateThrowable(
       id,
       "Fireball",
@@ -553,7 +552,7 @@ function fireCannon(id, shot) {
       10 * moraleFactor,
       1,
     );
-  } else if (shot === "shoot/grapeshot") {
+  } else if (shot === "grapeshot") {
     const damage = 10 * moraleFactor;
     for (let i = 0; i < 6; i += 1) {
       api.attemptCreateThrowable(
