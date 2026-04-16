@@ -44,6 +44,13 @@ const ARTY = {
   unloadedItem: "Diamond Crossbow",
 };
 
+const RECOIL = {
+  smoothbore: 10,
+  rifle: 10,
+  pistol: 5,
+  arty: 20,
+};
+
 const UNIFORMS = {
   helmet: {
     soldier: "Gray Wood Helmet",
@@ -75,7 +82,7 @@ const ROLE_MSG = {
 // =================
 // Game State
 // =================
-
+  
 var gameState = {
   tickn: 0,
   gameStarted: false,
@@ -105,25 +112,10 @@ var gameState = {
 onPlayerJoin = (id) => {
   api.clearInventory(id);
 
-  if (gameState.gameStarted) {
-    gameState.players[id] = {
-      role: null,
-      team: "spectator",
-      morale: null,
-      currentWeapon: null,
-      weaponSlot: null,
-    };
-
-    gameState.teams.spectator.push(id);
-  } else {
-    gameState.players[id] = {
-      role: null,
-      team: null,
-      morale: 100,
-      currentWeapon: null,
-      weaponSlot: null,
-    };
-  }
+  gameState.players[id] = createPlayer({
+    team: gameState.gameStarted ? "spectator" : null,
+    morale: gameState.gameStarted ? null : 100,
+  });
 
   api.setClientOption(id, "lobbyLeaderboardInfo", {
     name: { displayName: "Name", sortPriority: 0 },
@@ -151,27 +143,17 @@ tick = () => {
 
   for (const id of ids) {
     const myPos = api.getPosition(id);
-    const dists = [];
     const player = gameState.players[id];
+
     if (player.team === "spectator") continue;
-    for (const other of ids) {
-      if (other === id) continue;
-      if (gameState.players[other].team !== player.team) continue;
-      const otherPos = api.getPosition(other);
-      const distSq =
-        (otherPos[0] - myPos[0]) ** 2 +
-        (otherPos[1] - myPos[1]) ** 2 +
-        (otherPos[2] - myPos[2]) ** 2;
-      dists.push(distSq);
-    }
-    dists.sort((a, b) => a - b);
-    const d1 = dists[0] ?? Infinity;
-    const d2 = dists[1] ?? Infinity;
+
+    const [closest1, closest2] = getClosest(ids, id, player, myPos);
+
     let proximity;
-    if (d1 <= 9 && d2 <= 9) {
+    if (closest1 <= 9 && closest2 <= 9) {
       proximity = 50;
     } else {
-      const d = (Math.sqrt(d1) + Math.sqrt(d2)) * 0.5;
+      const d = (Math.sqrt(closest1) + Math.sqrt(closest2)) * 0.5;
       if (d >= 20) {
         proximity = 0;
       } else {
@@ -190,6 +172,7 @@ tick = () => {
       }
       britishMorale += player.morale;
     }
+
     updateSidebar(id);
   }
 
@@ -270,6 +253,37 @@ onPlayerFinishQTE = (id, qteId, succeed) => {
     );
   }
 };
+
+function getClosest(ids, id, player, myPos) {
+  let closest1 = Infinity;
+  let closest2 = Infinity;
+
+  for (const other of ids) {
+    if (other === id) continue;
+
+    const otherPlayer = gameState.players[other];
+    if (otherPlayer.team !== player.team) continue;
+
+    const otherPos = api.getPosition(other);
+
+    const dx = otherPos[0] - myPos[0];
+    const dy = otherPos[1] - myPos[1];
+    const dz = otherPos[2] - myPos[2];
+
+    if (Math.abs(dx) > 20 || Math.abs(dy) || Math.abs(dz) > 20) continue;
+
+    const distSq = dx * dx + dy * dy + dz * dz;
+
+    if (distSq < closest1) {
+      closest2 = closest1;
+      closest1 = distSq;
+    } else if (distSq < closest2) {
+      closest2 = distSq;
+    }
+  }
+
+  return [closest1, closest2];
+}
 
 // =================
 // Game loop
@@ -490,7 +504,7 @@ function fireWeapon(id, item, attrs, weapon) {
     0.5,
   );
 
-  api.applyImpulse(id, -dir[0] * 10, -dir[1] * 10, -dir[2] * 10);
+  applyRecoil(id, dir, attrs["muskets/name"]);
 
   api.playParticleEffect({
     presetId: "lightGrayFirecrackerSmall",
@@ -536,7 +550,7 @@ function fireCannon(id, shot) {
       1,
     );
   } else if (shot === "shoot/grapeshot") {
-    const damage = 6 * moraleFactor;
+    const damage = 10 * moraleFactor;
     for (let i = 0; i < 6; i += 1) {
       api.attemptCreateThrowable(
         id,
@@ -550,7 +564,7 @@ function fireCannon(id, shot) {
     }
   }
 
-  api.applyImpulse(id, -dir[0] * 20, -dir[1] * 20, -dir[2] * 20);
+  applyRecoil(id, dir, "arty");
 
   api.playParticleEffect({
     presetId: "lightGrayFirecrackerLarge",
@@ -622,6 +636,26 @@ function equipUniform(id) {
 // =================
 // Helpers
 // =================
+
+function createPlayer({ team = null, morale = 100 } = {}) {
+  return {
+    role: null,
+    team,
+    morale,
+    currentWeapon: null,
+    weaponSlot: null,
+  };
+}
+
+function applyRecoil(id, dir, weapon) {
+  const strength = RECOIL[weapon];
+  api.applyImpulse(
+    id,
+    -dir[0] * strength,
+    -dir[1] * strength,
+    -dir[2] * strength,
+  );
+}
 
 function deviate(dir, strength = 1) {
   return [
