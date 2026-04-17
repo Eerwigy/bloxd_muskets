@@ -126,6 +126,8 @@ onPlayerJoin = (id) => {
     deaths: { displayName: "Deaths", sortPriority: 1 },
     ratio: { displayName: "K/D Ratio", sortPriority: 4 },
   });
+  
+  api.sendMessage(id, "Welcome to Bloxd Muskets🏹", {color: cyan});
 };
 
 onPlayerLeave = (id) => {
@@ -222,7 +224,7 @@ onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
     if (elapsed < ORDER_COOLDOWN) {
       api.sendMessage(
         id,
-        `${Math.ceil(ORDER_COOLDOWN - elapsed / 1000)} seconds left until you can issue a new order`,
+        `${Math.ceil((ORDER_COOLDOWN - elapsed) / 1000)} seconds left until you can issue a new order`,
         {color: "cyan"}
       );
       return "preventAction";
@@ -457,7 +459,7 @@ function updateLeaderboard() {
         team: capitalizeFirstLetter(gameState.players[id].team || "None"),
         kills: kills,
         deaths: deaths,
-        ratio: (kills / deaths) || 0,
+        ratio: deaths > 0 ? kills / deaths : kills,
       },
       true,
     );
