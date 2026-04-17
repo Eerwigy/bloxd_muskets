@@ -10,6 +10,8 @@ const FRENCH_CAMP_POS = [1051.5, 51, 1012.5];
 const BRITISH_CAMP_POS = [1049.5, 51, 1388.5];
 const NEUTRAL_OBJ_POS = [1041.5, 51, 1212.5];
 
+const ORDER_COOLDOWN = 15_000; // 15 seconds
+
 const FIREARMS = {
   smoothbore: {
     speed: 1.5,
@@ -213,7 +215,22 @@ onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
   const weaponName = attrs["muskets/name"] || "";
   const loaded = attrs["muskets/loaded"];
 
-  if (weaponName.startsWith("order/")) executeOrder(weaponName);
+  if (weaponName.startsWith("order/")) {
+    const now = api.now();
+    const elapsed = now - player.lastOrderTime;
+    
+    if (elapsed < ORDER_COOLDOWN) {
+      api.sendMessage(
+        id,
+        `${Math.ceil(ORDER_COOLDOWN - elapsed / 1000)} seconds left until you can issue a new order`,
+        {color: "cyan"}
+      );
+      return "preventAction";
+    }
+    
+    player.lastOrderTime = now;
+    executeOrder(weaponName);
+  }
 
   if (weaponName === "arty"){
     if (loaded) {
@@ -230,7 +247,7 @@ onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
   if (loaded) {
     fireWeapon(id, item, attrs, weapon);
   } else {
-    reloadFirearm(id, item, attrs, weapon);
+    reloadFirearm(id, weapon);
   }
 
   return "preventAction";
@@ -647,6 +664,7 @@ function createPlayer({ team = null, morale = 100 } = {}) {
     morale,
     currentWeapon: null,
     weaponSlot: null,
+    lastOrderTime: -Infinity,
   };
 }
 
