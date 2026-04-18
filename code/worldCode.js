@@ -82,8 +82,8 @@ const ROLE_MSG = {
 };
 
 const PALETTE = {
-  british: "",
-  french: "",
+  british: "#ff2222",
+  french: "#0069ff",
   info: "cyan",
   order: "orange",
   error: "red",
