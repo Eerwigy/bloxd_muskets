@@ -240,7 +240,7 @@ onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
     }
     
     player.lastOrderTime = now;
-    executeOrder(weaponName);
+    executeOrder(id, weaponName);
   }
 
   if (weaponName === "arty"){
@@ -463,32 +463,75 @@ function updateLeaderboard() {
 // Weapon functions
 // =================
 
-function executeOrder(weaponName) {
-  let order = weaponName.slice(6);
+function executeOrder(id, weaponName) {
+  const team = gameState.players[id].team;
+  if (!team) return;
+
+  const order = weaponName.slice(6);
+  
+  //const teamList = gameState.teams[team];
 
   switch (order) {
     case "advance":
-      api.broadcastMessage("Your captain is ordering you to ADVANCE", {
-        color: PALETTE.order,
-      });
+      for (const pid of api.getPlayerIds()) {
+
+        //if (pid === id) continue;
+        api.sendMessage(pid, "Your captain is ordering you to ADVANCE", {
+          color: PALETTE.order,
+        });
+      }
+
+      api.sendMessage(id, "Ordered your troops to ADVANCE");
+      
       break;
     case "charge":
-      api.broadcastMessage("Your captain is ordering you to CHARGE", {
-        color: PALETTE.order,
-      });
+      for (const pid of api.getPlayerIds()) {
+        api.applyEffect(pid, "Speed", 5_000, {});
+        api.applyEffect(pid, "Damage", 10_000, {});
+
+        //if (pid === id) continue;
+        api.sendMessage(pid, "Your captain is ordering you to CHARGE", {
+          color: PALETTE.order,
+        });
+      }
+
+      api.sendMessage(id, "Ordered your troops to CHARGE");
+      
       break;
     case "hold":
-      api.broadcastMessage("Your captain is ordering you to HOLD POSITION", {
-        color: PALETTE.order,
-      });
+      for (const pid of api.getPlayerIds()) {
+        api.applyEffect(pid, "Slowness", 15_000, {});
+        api.applyEffect(pid, "Damage Reduction", 20_000, {});
+        api.applyEffect(pid, "Health Regen", 5_000, {});
+
+        //if (pid === id) continue;
+        api.sendMessage(pid, "Your captain is ordering you to HOLD POSITION", {
+          color: PALETTE.order,
+        });
+      }
+
+      api.sendMessage(id, "Ordered your troops to HOLD POSITION");
+      
       break;
     case "fallback":
-      api.broadcastMessage("Your captain is ordering you to FALLBACK", {
-        color: PALETTE.order,
-      });
+      for (const pid of api.getPlayerIds()) {
+        api.applyEffect(pid, "Weakness", 20_000, {});
+        api.applyEffect(pid, "Speed", 15_000, {});
+        api.applyEffect(pid, "Health Regen", 10_000, {});
+
+        //if (pid === id) continue;
+        api.sendMessage(pid, "Your captain is ordering you to FALLBACK", {
+          color: PALETTE.order,
+        });
+      }
+
+      api.sendMessage(id, "Ordered your troops to FALLBACK");
+      
       break;
-    default:
+    default: {
       api.log("Error: Invalid Order");
+      return;
+    }
   }
 }
 
