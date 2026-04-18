@@ -81,6 +81,15 @@ const ROLE_MSG = {
   captain: "👑Captain",
 };
 
+const PALETTE = {
+  british: "",
+  french: "",
+  info: "cyan",
+  order: "orange",
+  error: "red",
+  null: "grey",
+}
+
 // =================
 // Game State
 // =================
@@ -127,7 +136,7 @@ onPlayerJoin = (id) => {
     ratio: { displayName: "K/D Ratio", sortPriority: 4 },
   });
   
-  api.sendMessage(id, "Welcome to Bloxd Muskets🏹", {color: cyan});
+  api.sendMessage(id, "Welcome to Bloxd Muskets🏹", { color: PALETTE.info });
 };
 
 onPlayerLeave = (id) => {
@@ -225,7 +234,7 @@ onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
       api.sendMessage(
         id,
         `${Math.ceil((ORDER_COOLDOWN - elapsed) / 1000)} seconds left until you can issue a new order`,
-        {color: "cyan"}
+        { color: PALETTE.null }
       );
       return "preventAction";
     }
@@ -259,7 +268,12 @@ onPlayerFinishQTE = (id, qteId, succeed) => {
   const player = gameState.players[id];
   if (!player) return;
 
-  if (succeed && player.weaponSlot !== null) {
+  if (!succeed) {
+    api.sendFlyingMiddleMessage(id, "Failed to load weapon", 100);
+    return;
+  }
+
+  if (player.weaponSlot !== null) {
     const item = api.getItemSlot(id, player.weaponSlot);
     if (!item) return;
 
@@ -277,6 +291,7 @@ onPlayerFinishQTE = (id, qteId, succeed) => {
       true,
     );
   }
+  api.sendFlyingMiddleMessage(id, "Weapon loaded", 200);
 };
 
 function getClosest(ids, id, player, myPos) {
@@ -356,7 +371,7 @@ function startGame() {
           id,
           "Info: You have been randomly assigned to French team",
           {
-            color: "cyan",
+            color: PALETTE.info, 
           },
         );
       } else {
@@ -365,7 +380,7 @@ function startGame() {
           id,
           "Info: You have been randomly assigned to British team",
           {
-            color: "cyan",
+            color: PALETTE.info,
           },
         );
       }
@@ -386,7 +401,7 @@ function startGame() {
       api.sendMessage(
         movedPlayer,
         `Info: You have been reassigned to ${msg} team`,
-        { color: "cyan" },
+        { color: PALETTE.info },
       );
     }
   }
@@ -468,9 +483,9 @@ function updateLeaderboard() {
       id,
       "colorInLobbyLeaderboard",
       {
-        french: "#0069ff",
-        british: "#ff2222",
-      }[gameState.players[id].team] || "grey",
+        french: PALETTE.french,
+        british: PALETTE.british,
+      }[gameState.players[id].team] || PALETTE.null,
     );
   }
 }
@@ -485,22 +500,22 @@ function executeOrder(weaponName) {
   switch (order) {
     case "advance":
       api.broadcastMessage("Your captain is ordering you to ADVANCE", {
-        color: "cornflower",
+        color: PALETTE.order,
       });
       break;
     case "charge":
       api.broadcastMessage("Your captain is ordering you to CHARGE", {
-        color: "orange",
+        color: PALETTE.order,
       });
       break;
     case "hold":
       api.broadcastMessage("Your captain is ordering you to HOLD POSITION", {
-        color: "yellow",
+        color: PALETTE.order,
       });
       break;
     case "fallback":
       api.broadcastMessage("Your captain is ordering you to FALLBACK", {
-        color: "grey",
+        color: PALETTE.order,
       });
       break;
     default:
@@ -605,7 +620,7 @@ function reloadFirearm(id, weapon) {
       progressDecreasePerTick: 0.5,
       progressPerClick: weapon.reloadSpeed * getMoraleFactor(player.morale),
       canFail: true,
-      description: [{ str: weapon.message }],
+      description: weapon.message,
       clickIcon: "fa-solid fa-computer-mouse",
       scale: 1,
       rotation: 15,
@@ -626,7 +641,7 @@ function reloadCannon(id) {
       shrinkDurationMs: 800,
       toleranceFraction: 0.15 * getMoraleFactor(player.morale),
       maxMisses: 3,
-      label: [{ str: "Load your cannon!" }],
+      label: "Load your cannon!"
     },
   });
 
