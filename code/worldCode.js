@@ -294,36 +294,6 @@ onPlayerFinishQTE = (id, qteId, succeed) => {
   api.sendFlyingMiddleMessage(id, "Weapon loaded", 200);
 };
 
-function getClosest(ids, id, player, myPos) {
-  let closest1 = Infinity;
-  let closest2 = Infinity;
-
-  for (const other of ids) {
-    if (other === id) continue;
-
-    const otherPlayer = gameState.players[other];
-    if (otherPlayer.team !== player.team) continue;
-
-    const otherPos = api.getPosition(other);
-
-    const dx = otherPos[0] - myPos[0];
-    const dy = otherPos[1] - myPos[1];
-    const dz = otherPos[2] - myPos[2];
-
-    if (Math.abs(dx) > 20 || Math.abs(dy) || Math.abs(dz) > 20) continue;
-
-    const distSq = dx * dx + dy * dy + dz * dz;
-
-    if (distSq < closest1) {
-      closest2 = closest1;
-      closest1 = distSq;
-    } else if (distSq < closest2) {
-      closest2 = distSq;
-    }
-  }
-
-  return [closest1, closest2];
-}
 
 // =================
 // Game loop
@@ -620,7 +590,7 @@ function reloadFirearm(id, weapon) {
       progressDecreasePerTick: 0.5,
       progressPerClick: weapon.reloadSpeed * getMoraleFactor(player.morale),
       canFail: true,
-      description: weapon.message,
+      description: [weapon.message],
       clickIcon: "fa-solid fa-computer-mouse",
       scale: 1,
       rotation: 15,
@@ -641,7 +611,7 @@ function reloadCannon(id) {
       shrinkDurationMs: 800,
       toleranceFraction: 0.15 * getMoraleFactor(player.morale),
       maxMisses: 3,
-      label: "Load your cannon!"
+      label: ["Load your cannon!"],
     },
   });
 
@@ -693,6 +663,37 @@ function applyRecoil(id, dir, weapon) {
     -dir[1] * strength,
     -dir[2] * strength,
   );
+}
+
+function getClosest(ids, id, player, myPos) {
+  let closest1 = Infinity;
+  let closest2 = Infinity;
+
+  for (const other of ids) {
+    if (other === id) continue;
+
+    const otherPlayer = gameState.players[other];
+    if (otherPlayer.team !== player.team) continue;
+
+    const otherPos = api.getPosition(other);
+
+    const dx = otherPos[0] - myPos[0];
+    const dy = otherPos[1] - myPos[1];
+    const dz = otherPos[2] - myPos[2];
+
+    if (Math.abs(dx) > 20 || Math.abs(dy) || Math.abs(dz) > 20) continue;
+
+    const distSq = dx * dx + dy * dy + dz * dz;
+
+    if (distSq < closest1) {
+      closest2 = closest1;
+      closest1 = distSq;
+    } else if (distSq < closest2) {
+      closest2 = distSq;
+    }
+  }
+
+  return [closest1, closest2];
 }
 
 function deviate(dir, strength = 1) {
