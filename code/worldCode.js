@@ -269,7 +269,6 @@ onPlayerFinishQTE = (id, qteId, succeed) => {
   if (!player) return;
 
   if (!succeed) {
-    api.sendFlyingMiddleMessage(id, "Failed to load weapon", 100);
     return;
   }
 
