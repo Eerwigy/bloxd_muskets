@@ -294,7 +294,6 @@ onPlayerFinishQTE = (id, qteId, succeed) => {
   api.sendFlyingMiddleMessage(id, "Weapon loaded", 200);
 };
 
-
 // =================
 // Game loop
 // =================
@@ -544,31 +543,28 @@ function fireCannon(id, item, attrs) {
   const [x, y, z] = api.getPosition(id);
   const { dir } = api.getPlayerFacingInfo(id);
   const moraleFactor = getMoraleFactor(player.morale);
-  const shot = attrs["muskets/shot"];
 
-  if (shot === "roundshot") {
+  api.attemptCreateThrowable(
+    id,
+    "Fireball",
+    [x, y + 1.5, z],
+    dir,
+    5,
+    10 * moraleFactor,
+    1,
+  );
+  
+  const grapeshotDamage = 10 * moraleFactor;
+  for (let i = 0; i < 6; i += 1) {
     api.attemptCreateThrowable(
       id,
-      "Fireball",
+      "Reinforced Pebble",
       [x, y + 1.5, z],
-      dir,
-      5,
-      10 * moraleFactor,
+      deviate(dir, 0.25),
+      3,
+      grapeshotDamage,
       1,
     );
-  } else if (shot === "grapeshot") {
-    const damage = 10 * moraleFactor;
-    for (let i = 0; i < 6; i += 1) {
-      api.attemptCreateThrowable(
-        id,
-        "Reinforced Pebble",
-        [x, y + 1.5, z],
-        deviate(dir, 0.25),
-        3,
-        damage,
-        1,
-      );
-    }
   }
 
   applyRecoil(id, dir, "arty");
