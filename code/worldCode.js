@@ -549,7 +549,7 @@ function fireCannon(id, item, attrs) {
     "Fireball",
     [x, y + 1.5, z],
     dir,
-    5,
+    2,
     10 * moraleFactor,
     1,
   );
@@ -560,10 +560,10 @@ function fireCannon(id, item, attrs) {
       id,
       "Reinforced Pebble",
       [x, y + 1.5, z],
-      deviate(dir, 0.25),
-      3,
+      deviate(dir, 0.4),
+      2,
       grapeshotDamage,
-      1,
+      5,
     );
   }
 
@@ -603,7 +603,7 @@ function reloadCannon(id) {
   api.addQTE(id, {
     type: "rhythmClick",
     parameters: {
-      requiredSuccesses: 6,
+      requiredSuccesses: 8,
       shrinkDurationMs: 800,
       toleranceFraction: 0.15 * getMoraleFactor(player.morale),
       maxMisses: 3,

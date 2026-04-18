@@ -56,7 +56,7 @@ api.giveItem(myId, "Gray Paintball", 1, {
 
 api.giveItem(myId, "Diamond Crossbow", 1, {
   customDisplayName: "4-lb Field Cannon",
-  customDescription: "An excellent lightweight artillery gun (shoots roundshot)",
+  customDescription: "An excellent lightweight artillery gun that shoots roundshot along with smaller projectiles",
   customAttributes: {
     "muskets/name": "arty",
     enchantmentTier: "Tier 3",
