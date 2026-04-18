@@ -88,12 +88,12 @@ const PALETTE = {
   order: "orange",
   error: "red",
   null: "grey",
-}
+};
 
 // =================
 // Game State
 // =================
-  
+
 var gameState = {
   tickn: 0,
   gameStarted: false,
@@ -135,7 +135,7 @@ onPlayerJoin = (id) => {
     deaths: { displayName: "Deaths", sortPriority: 1 },
     ratio: { displayName: "K/D Ratio", sortPriority: 4 },
   });
-  
+
   api.sendMessage(id, "Welcome to Bloxd Muskets🏹", { color: PALETTE.info });
 };
 
@@ -190,15 +190,13 @@ tick = () => {
     updateSidebar(id);
   }
 
-  gameState.morale.french =
-    gameState.teams.french.length > 0
-      ? frenchMorale / gameState.teams.french.length
-      : 0;
+  gameState.morale.french = gameState.teams.french.length > 0
+    ? frenchMorale / gameState.teams.french.length
+    : 0;
 
-  gameState.morale.british =
-    gameState.teams.british.length > 0
-      ? britishMorale / gameState.teams.british.length
-      : 0;
+  gameState.morale.british = gameState.teams.british.length > 0
+    ? britishMorale / gameState.teams.british.length
+    : 0;
 
   if (gameState.tickn % 100 === 0) updateLeaderboard();
 
@@ -229,21 +227,23 @@ onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
   if (weaponName.startsWith("order/")) {
     const now = api.now();
     const elapsed = now - player.lastOrderTime;
-    
+
     if (elapsed < ORDER_COOLDOWN) {
       api.sendMessage(
         id,
-        `${Math.ceil((ORDER_COOLDOWN - elapsed) / 1000)} seconds left until you can issue a new order`,
-        { color: PALETTE.null }
+        `${
+          Math.ceil((ORDER_COOLDOWN - elapsed) / 1000)
+        } seconds left until you can issue a new order`,
+        { color: PALETTE.null },
       );
       return "preventAction";
     }
-    
+
     player.lastOrderTime = now;
     executeOrder(id, weaponName);
   }
 
-  if (weaponName === "arty"){
+  if (weaponName === "arty") {
     if (loaded) {
       fireCannon(id, item, attrs);
     } else {
@@ -340,7 +340,7 @@ function startGame() {
           id,
           "Info: You have been randomly assigned to French team",
           {
-            color: PALETTE.info, 
+            color: PALETTE.info,
           },
         );
       } else {
@@ -413,21 +413,25 @@ function updateSidebar(id) {
       Made by Yervweigh
 
       Your Team: ${
-        {
-          french: "🟦French",
-          british: "🟥British",
-          spectator: "👁️Spectator",
-        }[player.team] || "None"
-      }
+      {
+        french: "🟦French",
+        british: "🟥British",
+        spectator: "👁️Spectator",
+      }[player.team] || "None"
+    }
       Your Role: ${roleMsg ? roleMsg : "None"}
 
       Current Morale: ${Math.ceil(player.morale)}
 
       Teams Average Morale:
-      🟦${Math.ceil(gameState.morale.french)} - ${Math.ceil(gameState.morale.british)}🟥
+      🟦${Math.ceil(gameState.morale.french)} - ${
+      Math.ceil(gameState.morale.british)
+    }🟥
 
       Capture progress:
-      🟦${Math.floor(gameState.capture.french)}% - ${Math.floor(gameState.capture.british)}%🟥
+      🟦${Math.floor(gameState.capture.french)}% - ${
+      Math.floor(gameState.capture.british)
+    }%🟥
       `,
   );
 }
@@ -468,13 +472,12 @@ function executeOrder(id, weaponName) {
   if (!team) return;
 
   const order = weaponName.slice(6);
-  
+
   //const teamList = gameState.teams[team];
 
   switch (order) {
     case "advance":
       for (const pid of api.getPlayerIds()) {
-
         //if (pid === id) continue;
         api.sendMessage(pid, "Your captain is ordering you to ADVANCE", {
           color: PALETTE.order,
@@ -482,7 +485,7 @@ function executeOrder(id, weaponName) {
       }
 
       api.sendMessage(id, "Ordered your troops to ADVANCE");
-      
+
       break;
     case "charge":
       for (const pid of api.getPlayerIds()) {
@@ -496,7 +499,7 @@ function executeOrder(id, weaponName) {
       }
 
       api.sendMessage(id, "Ordered your troops to CHARGE");
-      
+
       break;
     case "hold":
       for (const pid of api.getPlayerIds()) {
@@ -511,7 +514,7 @@ function executeOrder(id, weaponName) {
       }
 
       api.sendMessage(id, "Ordered your troops to HOLD POSITION");
-      
+
       break;
     case "fallback":
       for (const pid of api.getPlayerIds()) {
@@ -526,7 +529,7 @@ function executeOrder(id, weaponName) {
       }
 
       api.sendMessage(id, "Ordered your troops to FALLBACK");
-      
+
       break;
     default: {
       api.log("Error: Invalid Order");
@@ -596,7 +599,7 @@ function fireCannon(id, item, attrs) {
     10 * moraleFactor,
     1,
   );
-  
+
   const grapeshotDamage = 10 * moraleFactor;
   for (let i = 0; i < 6; i += 1) {
     api.attemptCreateThrowable(
