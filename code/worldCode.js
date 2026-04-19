@@ -554,7 +554,7 @@ function fireWeapon(id, item, attrs, weapon) {
     [x, y + 1.5, z],
     deviate(
       dir,
-      weapon === FIREARMS["rifle"] ? 0 : 0.2 - 0.2 * (morale * 0.01),
+      weapon === FIREARMS["rifle"] ? 0 : reverseMoraleFactor(morale, 0.2),
     ),
     weapon.speed,
     weapon.damage * getMoraleFactor(morale),
@@ -697,7 +697,7 @@ function createPlayer({ team = null, morale = 100 } = {}) {
 }
 
 function applyRecoil(id, dir, weapon) {
-  const strength = RECOIL[weapon];
+  const strength = RECOIL[weapon] + reverseMoraleFactor(gameState.players[id]?.morale, 5);
   api.applyImpulse(
     id,
     -dir[0] * strength,
@@ -759,6 +759,10 @@ function shuffle(arr) {
 
 function getMoraleFactor(morale) {
   return 0.5 + morale * 0.01;
+}
+
+function reverseMoraleFactor(morale, val) {
+  return val - val * morale * 0.01
 }
 
 function capitalizeFirstLetter(str) {
