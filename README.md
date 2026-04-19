@@ -41,7 +41,7 @@ Stay in formation to maintain a high morale. If morale goes too low, it is best 
 
 ## Roles
 
-You can choose one of the following roles at the beginning of a battle. You will be assigned to musketeer if you don't choose a role. You may be reassigned to a different role if there's too much of one role in a team (see [#Team Composition]).
+You can choose one of the following roles at the beginning of a battle. You will be assigned to musketeer if you don't choose a role. You may be reassigned to a different role if there's too much of one role in a team (see [Team Composition](#team-composition)).
 ### Musketeer
 
 This is the default role. You receive a smoothbore musket which you can use to shoot musket balls or stab enemies with your bayonet.
