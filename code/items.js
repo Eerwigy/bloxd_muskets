@@ -72,3 +72,21 @@ api.giveItem(myId, "Iron Crossbow", 1, {
     enchantmentTier: "Tier 4",
   },
 });
+
+api.giveItem(myId, "Light Gray Paintball", 1, {
+  customDisplayName: "Bandages",
+  customDescription: "Use theses to heal your injured comrades",
+  customAttributes: {
+    "muskets/name": "bandages",
+  }
+})
+
+api.giveItem(myId, "Iron Dagger", 1, {
+  customDisplayName: "Scalpel",
+  customDescription: "Stab the people who come too close to your patients",
+  customAttributes: {
+    "muskets/name": "scalpel",
+  }
+})
+
+
