@@ -54,6 +54,22 @@ const RECOIL = {
 };
 
 const UNIFORMS = {
+  slots: {
+    helmet: 46,
+    chestplate: 47,
+    gauntlets: 48,
+    leggings: 49,
+    boots: 50,
+  },
+  medic: {
+    helmet: {
+      british: "Red Wood Helmet",
+      french: "Blue Wood Helmet",
+    },
+    chestplate: "White Wood Chestplate",
+    gauntlets: "Brown Wood Gauntlets",
+    leggings: "Brown Wood Leggings",
+  },
   helmet: {
     soldier: "Gray Wood Helmet",
     grenadier: "Black Wood Helmet",
@@ -70,15 +86,17 @@ const UNIFORMS = {
     british: "Light Gray Wood Leggings",
     french: "White Wood Leggings",
   },
+  boots: "Black Wood Boots",
 };
 
 const ROLE_MSG = {
   soldier: "🏹Musketeer",
   sharpshooter: "🎯Sharpshooter",
   artillery: "💥Artillery",
-  cavalry: "🐴Dragoon",
+  cavalry: "🐴Cavalry",
   grenadier: "💣Grenadier",
   captain: "👑Captain",
+  medic: "⚕️Surgeon",
 };
 
 const PALETTE = {
@@ -153,7 +171,7 @@ tick = () => {
 
   if (!gameState.gameStarted) {
     for (const id of ids) {
-      updateSidebarNotStarted(id)
+      updateSidebarNotStarted(id);
     }
 
     if (gameState.tickn % 100 === 0) updateLeaderboard();
@@ -443,10 +461,14 @@ function updateSidebarStarted(id) {
       Current Morale: ${Math.ceil(player.morale)}
 
       Teams Average Morale:
-      🟦${Math.ceil(gameState.morale.french)} - ${Math.ceil(gameState.morale.british)}🟥
+      🟦${Math.ceil(gameState.morale.french)} - ${
+      Math.ceil(gameState.morale.british)
+    }🟥
 
       Capture progress:
-      🟦${Math.floor(gameState.capture.french)}% - ${Math.floor(gameState.capture.british)}%🟥
+      🟦${Math.floor(gameState.capture.french)}% - ${
+      Math.floor(gameState.capture.british)
+    }%🟥
       `,
   );
 }
@@ -702,6 +724,18 @@ function reloadCannon(id) {
 function equipUniform(id) {
   const player = gameState.players[id];
 
+  if (player.role === "medic") {
+    if (player.team !== null) {
+      api.setItemSlot(id, 46, UNIFORMS.medic.helmet[player.team]);
+    }
+
+    api.setItemSlot(id, 47, UNIFORMS.medic.chestplate);
+    api.setItemSlot(id, 48, UNIFORMS.medic.gauntlets);
+    api.setItemSlot(id, 49, UNIFORMS.medic.leggings);
+    api.setItemSlot(id, 50, UNIFORMS.boots);
+    return;
+  }
+
   if (player.role !== null) {
     api.setItemSlot(id, 46, UNIFORMS.helmet[player.role], 1);
   }
@@ -711,7 +745,7 @@ function equipUniform(id) {
     api.setItemSlot(id, 49, UNIFORMS.leggings[player.team], 1);
   }
 
-  api.setItemSlot(id, 50, "Black Wood Boots", 1);
+  api.setItemSlot(id, 50, UNIFORMS.boots, 1);
 
   if (player.role === "dragoon") {
     api.setItemSlot(id, 48, "White Wood Gauntlets", 1);
@@ -736,7 +770,8 @@ function createPlayer({ team = null, morale = 100 } = {}) {
 }
 
 function applyRecoil(id, dir, weapon) {
-  const strength = RECOIL[weapon] + reverseMoraleFactor(gameState.players[id]?.morale, 5);
+  const strength = RECOIL[weapon] +
+    reverseMoraleFactor(gameState.players[id]?.morale, 5);
   api.applyImpulse(
     id,
     -dir[0] * strength,
@@ -801,7 +836,7 @@ function getMoraleFactor(morale) {
 }
 
 function reverseMoraleFactor(morale, val) {
-  return val - val * morale * 0.01
+  return val - val * morale * 0.01;
 }
 
 function capitalizeFirstLetter(str) {
