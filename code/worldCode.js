@@ -423,14 +423,10 @@ function updateSidebar(id) {
       Current Morale: ${Math.ceil(player.morale)}
 
       Teams Average Morale:
-      🟦${Math.ceil(gameState.morale.french)} - ${
-      Math.ceil(gameState.morale.british)
-    }🟥
+      🟦${Math.ceil(gameState.morale.french)} - ${Math.ceil(gameState.morale.british)}🟥
 
       Capture progress:
-      🟦${Math.floor(gameState.capture.french)}% - ${
-      Math.floor(gameState.capture.british)
-    }%🟥
+      🟦${Math.floor(gameState.capture.french)}% - ${Math.floor(gameState.capture.british)}%🟥
       `,
   );
 }
