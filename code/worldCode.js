@@ -101,7 +101,6 @@ var gameState = {
   teams: {
     british: [],
     french: [],
-    spectator: [],
   },
   morale: {
     british: 0,
@@ -152,6 +151,17 @@ onPlayerLeave = (id) => {
 tick = () => {
   const ids = api.getPlayerIds();
 
+  if (!gameState.gameStarted) {
+    for (const id of ids) {
+      updateSidebarNotStarted(id)
+    }
+
+    if (gameState.tickn % 100 === 0) updateLeaderboard();
+    gameState.tickn += 1;
+
+    return;
+  }
+
   let britishMorale = 0;
   let frenchMorale = 0;
 
@@ -187,7 +197,7 @@ tick = () => {
       britishMorale += player.morale;
     }
 
-    updateSidebar(id);
+    updateSidebarStarted(id);
   }
 
   gameState.morale.french = gameState.teams.french.length > 0
@@ -204,17 +214,22 @@ tick = () => {
 };
 
 onPlayerKilledOtherPlayer = (killerId, victimId) => {
+  if (!gameState.gameStarted) return;
   gameState.kills[killerId] = (gameState.kills[killerId] || 0) + 1;
   gameState.deaths[victimId] = (gameState.deaths[victimId] || 0) + 1;
 };
 
 onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
-  if (api.hasActiveQTE(id)) return "preventAction";
-
-  if (blockName.includes("Door")) return;
+  if (!gameState.gameStarted) return;
 
   const player = gameState.players[id];
   if (!player) return "preventAction";
+
+  if (player.team === "spectator") return "preventAction";
+
+  if (api.hasActiveQTE(id)) return "preventAction";
+
+  if (blockName.includes("Door")) return;
 
   const item = api.getHeldItem(id);
   const attrs = item?.attributes?.customAttributes;
@@ -265,6 +280,8 @@ onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
 };
 
 onPlayerFinishQTE = (id, qteId, succeed) => {
+  if (!gameState.gameStarted) return;
+
   const player = gameState.players[id];
   if (!player) return;
 
@@ -314,6 +331,9 @@ function startGame() {
 
   for (const id of ids) {
     const player = gameState.players[id];
+
+    gameState.kills[id] = 0;
+    gameState.deaths[id] = 0;
 
     switch (player.team) {
       case "french":
@@ -401,7 +421,7 @@ function endGame() {
 // UI
 // =================
 
-function updateSidebar(id) {
+function updateSidebarStarted(id) {
   const player = gameState.players[id];
   const roleMsg = ROLE_MSG[player.role];
 
@@ -428,6 +448,29 @@ function updateSidebar(id) {
       Capture progress:
       🟦${Math.floor(gameState.capture.french)}% - ${Math.floor(gameState.capture.british)}%🟥
       `,
+  );
+}
+
+function updateSidebarNotStarted(id) {
+  const player = gameState.players[id];
+  const roleMsg = ROLE_MSG[player.role];
+
+  api.setClientOption(
+    id,
+    "RightInfoText",
+    `Bloxd Muskets🏹
+     Made by Yervweigh
+     
+     Game has not started yet
+
+     Your Team: ${
+      {
+        french: "🟦French",
+        british: "🟥British",
+        spectator: "👁️Spectator",
+      }[player.team] || "None"
+    }
+     Your Role: ${roleMsg ? roleMsg : "None"}`,
   );
 }
 
@@ -718,7 +761,7 @@ function getClosest(ids, id, player, myPos) {
     const dy = otherPos[1] - myPos[1];
     const dz = otherPos[2] - myPos[2];
 
-    if (Math.abs(dx) > 20 || Math.abs(dy) || Math.abs(dz) > 20) continue;
+    if (Math.abs(dx) > 20 || Math.abs(dy) > 20 || Math.abs(dz) > 20) continue;
 
     const distSq = dx * dx + dy * dy + dz * dz;
 
