@@ -6,6 +6,8 @@
 // Constants
 // =================
 
+const TESTMODE = true;
+
 const FRENCH_CAMP_POS = [1051.5, 51, 1012.5];
 const BRITISH_CAMP_POS = [1049.5, 51, 1388.5];
 const NEUTRAL_OBJ_POS = [1041.5, 51, 1212.5];
@@ -178,7 +180,7 @@ onPlayerLeave = (id) => {
 tick = () => {
   const ids = api.getPlayerIds();
 
-  if (!gameState.gameStarted) {
+  if (notStarted()) {
     for (const id of ids) {
       updateSidebarNotStarted(id);
     }
@@ -241,13 +243,13 @@ tick = () => {
 };
 
 onPlayerKilledOtherPlayer = (killerId, victimId) => {
-  if (!gameState.gameStarted) return;
+  if (notStarted()) return;
   gameState.kills[killerId] = (gameState.kills[killerId] || 0) + 1;
   gameState.deaths[victimId] = (gameState.deaths[victimId] || 0) + 1;
 };
 
 onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
-  if (!gameState.gameStarted) return;
+  if (notStarted()) return;
 
   const player = gameState.players[id];
   if (!player) return "preventAction";
@@ -307,7 +309,7 @@ onPlayerAttemptAltAction = (id, _x, _y, _z, blockName) => {
 };
 
 onPlayerFinishQTE = (id, qteId, succeed) => {
-  if (!gameState.gameStarted) return;
+  if (notStarted()) return;
 
   const player = gameState.players[id];
   if (!player) return;
@@ -796,6 +798,10 @@ function applyRecoil(id, dir, weapon) {
     -dir[1] * strength,
     -dir[2] * strength,
   );
+}
+
+function notStarted() {
+  return !gameState.gameStarted && !TESTMODE;
 }
 
 function getClosest(ids, id, player, myPos) {
