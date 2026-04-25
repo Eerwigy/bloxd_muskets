@@ -61,32 +61,41 @@ const UNIFORMS = {
     leggings: 49,
     boots: 50,
   },
-  medic: {
-    helmet: {
-      british: "Red Wood Helmet",
-      french: "Blue Wood Helmet",
+
+  defaults: {
+    boots: "Black Wood Boots",
+    gauntlets: "Air",
+  },
+
+  roles: {
+    medic: {
+      helmet: {
+        british: "Red Wood Helmet",
+        french: "Blue Wood Helmet",
+      },
+      chestplate: "White Wood Chestplate",
+      gauntlets: "Brown Wood Gauntlets",
+      leggings: "Brown Wood Leggings",
     },
-    chestplate: "White Wood Chestplate",
-    gauntlets: "Brown Wood Gauntlets",
-    leggings: "Brown Wood Leggings",
+
+    soldier: { helmet: "Gray Wood Helmet" },
+    grenadier: { helmet: "Black Wood Helmet" },
+    sharpshooter: { helmet: "Green Wood Helmet" },
+    dragoon: { helmet: "Iron Helmet", gauntlets: "White Wood Gauntlets" },
+    artillery: { helmet: "Cyan Wood Helmet" },
+    captain: { helmet: "Gold Helmet" },
   },
-  helmet: {
-    soldier: "Gray Wood Helmet",
-    grenadier: "Black Wood Helmet",
-    sharpshooter: "Green Wood Helmet",
-    dragoon: "Iron Helmet",
-    artillery: "Cyan Wood Helmet",
-    captain: "Gold Helmet",
+
+  team: {
+    chestplate: {
+      british: "Red Wood Chestplate",
+      french: "Blue Wood Chestplate",
+    },
+    leggings: {
+      british: "Light Gray Wood Leggings",
+      french: "White Wood Leggings",
+    },
   },
-  chestplate: {
-    british: "Red Wood Chestplate",
-    french: "Blue Wood Chestplate",
-  },
-  leggings: {
-    british: "Light Gray Wood Leggings",
-    french: "White Wood Leggings",
-  },
-  boots: "Black Wood Boots",
 };
 
 const ROLE_MSG = {
@@ -723,34 +732,43 @@ function reloadCannon(id) {
 
 function equipUniform(id) {
   const player = gameState.players[id];
+  const { role, team } = player;
 
-  if (player.role === "medic") {
-    if (player.team !== null) {
-      api.setItemSlot(id, UNIFORMS.slots.helmet, UNIFORMS.medic.helmet[player.team]);
-    }
+  const loadout = {
+    helmet: null,
+    chestplate: null,
+    gauntlets: UNIFORMS.defaults.gauntlets,
+    leggings: null,
+    boots: UNIFORMS.defaults.boots,
+  };
 
-    api.setItemSlot(id, UNIFORMS.slots.chestplate, UNIFORMS.medic.chestplate);
-    api.setItemSlot(id, UNIFORMS.slots.gauntlets, UNIFORMS.medic.gauntlets);
-    api.setItemSlot(id, UNIFORMS.slots.leggings, UNIFORMS.medic.leggings);
-    api.setItemSlot(id, UNIFORMS.slots.boots, UNIFORMS.boots);
-    return;
-  }
+  const roleData = UNIFORMS.roles[role];
 
-  if (player.role !== null) {
-    api.setItemSlot(id, UNIFORMS.slots.helmet, UNIFORMS.helmet[player.role], 1);
-  }
+  if (!roleData) return;
 
-  if (player.team !== null) {
-    api.setItemSlot(id, UNIFORMS.slots.chestplate, UNIFORMS.chestplate[player.team], 1);
-    api.setItemSlot(id, UNIFORMS.slots.leggings, UNIFORMS.leggings[player.team], 1);
-  }
-
-  api.setItemSlot(id, UNIFORMS.slots.boots, UNIFORMS.boots, 1);
-
-  if (player.role === "dragoon") {
-    api.setItemSlot(id, UNIFORMS.slots.gauntlets, "White Wood Gauntlets", 1);
+  if (typeof roleData.helmet === "object") {
+    loadout.helmet = team ? roleData.helmet[team] : null;
   } else {
-    api.setItemSlot(id, UNIFORMS.slots.gauntlets, "Air", 1);
+    loadout.helmet = roleData.helmet;
+  }
+
+  if (roleData.chestplate) loadout.chestplate = roleData.chestplate;
+  if (roleData.gauntlets) loadout.gauntlets = roleData.gauntlets;
+  if (roleData.leggings) loadout.leggings = roleData.leggings;
+
+  if (team) {
+    if (!loadout.chestplate) {
+      loadout.chestplate = UNIFORMS.team.chestplate[team];
+    }
+    if (!loadout.leggings) {
+      loadout.leggings = UNIFORMS.team.leggings[team];
+    }
+  }
+
+  for (const piece in loadout) {
+    if (loadout[piece] !== null) {
+      api.setItemSlot(id, UNIFORMS.slots[piece], loadout[piece], 1);
+    }
   }
 }
 
