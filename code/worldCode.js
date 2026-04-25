@@ -726,31 +726,31 @@ function equipUniform(id) {
 
   if (player.role === "medic") {
     if (player.team !== null) {
-      api.setItemSlot(id, 46, UNIFORMS.medic.helmet[player.team]);
+      api.setItemSlot(id, UNIFORMS.slots.helmet, UNIFORMS.medic.helmet[player.team]);
     }
 
-    api.setItemSlot(id, 47, UNIFORMS.medic.chestplate);
-    api.setItemSlot(id, 48, UNIFORMS.medic.gauntlets);
-    api.setItemSlot(id, 49, UNIFORMS.medic.leggings);
-    api.setItemSlot(id, 50, UNIFORMS.boots);
+    api.setItemSlot(id, UNIFORMS.slots.chestplate, UNIFORMS.medic.chestplate);
+    api.setItemSlot(id, UNIFORMS.slots.gauntlets, UNIFORMS.medic.gauntlets);
+    api.setItemSlot(id, UNIFORMS.slots.leggings, UNIFORMS.medic.leggings);
+    api.setItemSlot(id, UNIFORMS.slots.boots, UNIFORMS.boots);
     return;
   }
 
   if (player.role !== null) {
-    api.setItemSlot(id, 46, UNIFORMS.helmet[player.role], 1);
+    api.setItemSlot(id, UNIFORMS.slots.helmet, UNIFORMS.helmet[player.role], 1);
   }
 
   if (player.team !== null) {
-    api.setItemSlot(id, 47, UNIFORMS.chestplate[player.team], 1);
-    api.setItemSlot(id, 49, UNIFORMS.leggings[player.team], 1);
+    api.setItemSlot(id, UNIFORMS.slots.chestplate, UNIFORMS.chestplate[player.team], 1);
+    api.setItemSlot(id, UNIFORMS.slots.leggings, UNIFORMS.leggings[player.team], 1);
   }
 
-  api.setItemSlot(id, 50, UNIFORMS.boots, 1);
+  api.setItemSlot(id, UNIFORMS.slots.boots, UNIFORMS.boots, 1);
 
   if (player.role === "dragoon") {
-    api.setItemSlot(id, 48, "White Wood Gauntlets", 1);
+    api.setItemSlot(id, UNIFORMS.slots.gauntlets, "White Wood Gauntlets", 1);
   } else {
-    api.setItemSlot(id, 48, "Air", 1);
+    api.setItemSlot(id, UNIFORMS.slots.gauntlets, "Air", 1);
   }
 }
 
