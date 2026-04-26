@@ -448,6 +448,94 @@ function endGame() {
 }
 
 // =================
+// Roles Helpers
+// =================
+
+function getRoleCaps(teamSize) {
+  const caps = {
+    sharpshooter: 0,
+    grenadier: 0,
+    dragoon: 0,
+    artillery: 0,
+    medic: 0,
+    captain: 1,
+  };
+
+  if (teamSize >= 4 && teamSize <= 5) {
+    caps.sharpshooter = 1;
+    caps.grenadier = 1;
+  } else if (teamSize <= 8) {
+    caps.sharpshooter = 2;
+    caps.grenadier = 1;
+    caps.dragoon = 1;
+    caps.medic = 1;
+  } else if (teamSize <= 12) {
+    caps.sharpshooter = 3;
+    caps.grenadier = 2;
+    caps.dragoon = 2;
+    caps.medic = 1;
+    caps.artillery = 1;
+  } else if (teamSize >= 13) {
+    caps.sharpshooter = 4;
+    caps.grenadier = 3;
+    caps.dragoon = 3;
+    caps.medic = 2;
+    caps.artillery = 1;
+  }
+
+  return caps;
+}
+
+function countRoles(teamIds) {
+  const counts = {};
+
+  for (const id of teamIds) {
+    const role = gameState.players[id]?.role;
+    if (!role) continue;
+
+    counts[role] = (counts[role] || 0) + 1;
+  }
+
+  return counts;
+}
+
+function tryAssignRole(id, role) {
+  const player = gameState.players[id];
+  const team = player.team;
+
+  if (!team) {
+    api.sendMessage(id, "Join a team before picking a role", { color: PALETTE.error });
+    return;
+  }
+
+  const teamIds = gameState.teams[team];
+  const caps = getRoleCaps(teamIds.length);
+  const counts = countRoles(teamIds);
+
+  const current = counts[role] || 0;
+  const max = caps[role] ?? Infinity;
+
+  if (current >= max) {
+    api.sendMessage(
+      id,
+      `${ROLE_MSG[role] || role} is full for your team`,
+      { color: PALETTE.error }
+    );
+    return;
+  }
+
+  player.role = role;
+
+  api.sendMessage(
+    id,
+    `You are now ${ROLE_MSG[role] || role}`,
+    { color: PALETTE.info }
+  );
+
+  equipUniform(id);
+}
+
+// =================
 // UI
 // =================
 
