@@ -42,6 +42,7 @@ Stay in formation to maintain a high morale. If morale goes too low, it is best 
 ## Roles
 
 You can choose one of the following roles at the beginning of a battle. You will be assigned to musketeer if you don't choose a role. You may be reassigned to a different role if there's too much of one role in a team (see [Team Composition](#team-composition)).
+
 ### Musketeer
 
 This is the default role. You receive a smoothbore musket which you can use to shoot musket balls or stab enemies with your bayonet.
@@ -54,13 +55,17 @@ You receive a rifled musket. This deals more ranged damage than a smoothbore and
 
 Grenadiers are elite soldiers. You get the same equipment as musketeers but with a strength bonus. You also get a few handgrenades to disorient the enemy.
 
-### Dragoon
+### Cavarly
 
 You get a horse and and a cavalry sabre. You can use this to charge the enemy.
 
 ### Artillery
 
-You receive a 4-lb field cannon that can shoot roundshot along with some smaller projectiles. It is very heavy, so you have a slowness debuff. You also get an infantry sabre to defend yourself in close combat.
+You receive a 4-lb field cannon that can shoot roundshot along with some smaller projectiles. It is very heavy, so you have a slowness debuff.
+
+### Surgeon
+
+Heal your injured teammates with bandages. You can stab enemies with your scalpel, but it is advised to avoid combat unless necessary.
 
 ### Captain
 
@@ -68,12 +73,12 @@ You are the leader of your team. You can order your team to hold position, march
 
 ## Team Composition
 
-You can play in teams of 3-15. Each team has one captain. For specialist roles (sharpshooters, grenadiers, dragoons and artillery), there is a max number of players that can have those roles based on the number of players in that team.
+You can play in teams of 3-15. Each team has one captain. For specialist roles (sharpshooters, grenadiers, cavalry, artillery and surgeons), there is a max number of players that can have those roles based on the number of players in that team.
 
 | Players in Team | Max players per Role                                                  |
 | --------------- | --------------------------------------------------------------------- |
 | 3               | - Sharpshooter: 1                                                     |
 | 4-5             | - Sharpshooter: 1<br>- Grenadier: 1                                   |
-| 6-8             | - Sharpshooter: 2<br>- Grenadier: 1<br>- Artillery: 1<br>- Dragoon: 1 |
-| 9-12            | - Sharpshooter: 3<br>- Grenadier: 2<br>- Artillery: 1<br>- Dragoon: 1 |
-| 13-15           | - Sharpshooter: 5<br>- Grenadier: 4<br>- Artillery: 1<br>- Dragoon: 2 |
+| 6-8             | - Sharpshooter: 2<br>- Grenadier: 1<br>- Artillery: 1<br>- Cavalry: 1 |
+| 9-12            | - Sharpshooter: 3<br>- Grenadier: 2<br>- Artillery: 1<br>- Cavalry: 1 |
+| 13-15           | - Sharpshooter: 5<br>- Grenadier: 4<br>- Artillery: 1<br>- Cavalry: 2 |
