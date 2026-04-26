@@ -159,9 +159,10 @@ onPlayerJoin = (id) => {
   api.setClientOption(id, "lobbyLeaderboardInfo", {
     name: { displayName: "Name", sortPriority: 0 },
     team: { displayName: "Team", sortPriority: 3 },
-    kills: { displayName: "Kills", sortPriority: 2 },
-    deaths: { displayName: "Deaths", sortPriority: 1 },
-    ratio: { displayName: "K/D Ratio", sortPriority: 4 },
+    role: { displayName: "Role", sortPriority: 0 },
+    kills: { displayName: "Kills", sortPriority: 0 },
+    deaths: { displayName: "Deaths", sortPriority: 0 },
+    ratio: { displayName: "K/D Ratio", sortPriority: 0 },
   });
 
   api.sendMessage(id, "Welcome to Bloxd Muskets🏹", { color: PALETTE.info });
@@ -511,11 +512,13 @@ function updateLeaderboard() {
   for (const id of api.getPlayerIds()) {
     const kills = gameState.kills[id] || 0;
     const deaths = gameState.deaths[id] || 0;
+    const player = gameState.players[id];
     api.setTargetedPlayerSettingForEveryone(
       id,
       "lobbyLeaderboardValues",
       {
-        team: capitalizeFirstLetter(gameState.players[id].team || "None"),
+        team: capitalizeFirstLetter(player.team || "None"),
+        role: player.role ? ROLE_MSG[player.role] : "None",
         kills: kills,
         deaths: deaths,
         ratio: deaths > 0 ? kills / deaths : kills,
