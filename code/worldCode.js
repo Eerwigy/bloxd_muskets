@@ -158,7 +158,7 @@ onPlayerJoin = (id) => {
 
   api.setClientOption(id, "lobbyLeaderboardInfo", {
     name: { displayName: "Name", sortPriority: 0 },
-    team: { displayName: "Team", sortPriority: 3 },
+    team: { displayName: "Team", sortPriority: 0 },
     role: { displayName: "Role", sortPriority: 0 },
     kills: { displayName: "Kills", sortPriority: 0 },
     deaths: { displayName: "Deaths", sortPriority: 0 },
@@ -547,12 +547,12 @@ function executeOrder(id, weaponName) {
 
   const order = weaponName.slice(6);
 
-  //const teamList = gameState.teams[team];
+  const teamList = gameState.teams[team];
 
   switch (order) {
     case "advance":
-      for (const pid of api.getPlayerIds()) {
-        //if (pid === id) continue;
+      for (const pid of teamList) {
+        if (pid === id) continue;
         api.sendMessage(pid, "Your captain is ordering you to ADVANCE", {
           color: PALETTE.order,
         });
@@ -562,11 +562,11 @@ function executeOrder(id, weaponName) {
 
       break;
     case "charge":
-      for (const pid of api.getPlayerIds()) {
+      for (const pid of teamList) {
         api.applyEffect(pid, "Speed", 5_000, {});
         api.applyEffect(pid, "Damage", 10_000, {});
 
-        //if (pid === id) continue;
+        if (pid === id) continue;
         api.sendMessage(pid, "Your captain is ordering you to CHARGE", {
           color: PALETTE.order,
         });
@@ -576,12 +576,12 @@ function executeOrder(id, weaponName) {
 
       break;
     case "hold":
-      for (const pid of api.getPlayerIds()) {
+      for (const pid of teamList) {
         api.applyEffect(pid, "Slowness", 15_000, {});
         api.applyEffect(pid, "Damage Reduction", 20_000, {});
         api.applyEffect(pid, "Health Regen", 5_000, {});
 
-        //if (pid === id) continue;
+        if (pid === id) continue;
         api.sendMessage(pid, "Your captain is ordering you to HOLD POSITION", {
           color: PALETTE.order,
         });
@@ -591,12 +591,12 @@ function executeOrder(id, weaponName) {
 
       break;
     case "fallback":
-      for (const pid of api.getPlayerIds()) {
+      for (const pid of teamList) {
         api.applyEffect(pid, "Weakness", 20_000, {});
         api.applyEffect(pid, "Speed", 15_000, {});
         api.applyEffect(pid, "Health Regen", 10_000, {});
 
-        //if (pid === id) continue;
+        if (pid === id) continue;
         api.sendMessage(pid, "Your captain is ordering you to FALLBACK", {
           color: PALETTE.order,
         });
