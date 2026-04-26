@@ -104,7 +104,7 @@ const ROLE_MSG = {
   soldier: "🏹Musketeer",
   sharpshooter: "🎯Sharpshooter",
   artillery: "💥Artillery",
-  cavalry: "🐴Cavalry",
+  dragoon: "🐴Cavalry",
   grenadier: "💣Grenadier",
   captain: "👑Captain",
   medic: "⚕️Surgeon",
