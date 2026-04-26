@@ -405,7 +405,7 @@ function startGame() {
     }
 
     gameState.players[id].role = "soldier";
-    api.sendMessage(id, "You have been assigned to Musketeer🏹", { color: PALETTE.info }]);
+    api.sendMessage(id, "You have been assigned to Musketeer🏹", { color: PALETTE.info });
   }
 
   gameState.teams.french = []
