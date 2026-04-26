@@ -869,6 +869,17 @@ function equipUniform(id) {
   }
 }
 
+function applyRecoil(id, dir, weapon) {
+  const strength = RECOIL[weapon] +
+    reverseMoraleFactor(gameState.players[id]?.morale, 5);
+  api.applyImpulse(
+    id,
+    -dir[0] * strength,
+    -dir[1] * strength,
+    -dir[2] * strength,
+  );
+}
+
 function getMoraleFactor(morale) {
   return 0.5 + morale * 0.01;
 }
@@ -890,17 +901,6 @@ function createPlayer({ team = null, morale = 100 } = {}) {
     weaponSlot: null,
     lastOrderTime: -Infinity,
   };
-}
-
-function applyRecoil(id, dir, weapon) {
-  const strength = RECOIL[weapon] +
-    reverseMoraleFactor(gameState.players[id]?.morale, 5);
-  api.applyImpulse(
-    id,
-    -dir[0] * strength,
-    -dir[1] * strength,
-    -dir[2] * strength,
-  );
 }
 
 function getClosest(ids, id, player, myPos) {
