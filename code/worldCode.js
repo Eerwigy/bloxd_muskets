@@ -512,9 +512,15 @@ function tryAssignRole(id, role) {
     return;
   }
 
+  if (player.role === role) return;
+
   const teamIds = gameState.teams[team];
   const caps = getRoleCaps(teamIds.length);
   const counts = countRoles(teamIds);
+
+  if (player.role) {
+    counts[player.role] = Math.max((counts[player.role] || 1) - 1, 0);
+  }
 
   const current = counts[role] || 0;
   const max = caps[role] ?? Infinity;
@@ -590,12 +596,12 @@ function updateSidebarNotStarted(id) {
      Game has not started yet
 
      Your Team: ${
-      {
-        french: "🟦French",
-        british: "🟥British",
-        spectator: "👁️Spectator",
-      }[player.team] || "None"
-    }
+       {
+         french: "🟦French",
+         british: "🟥British",
+         spectator: "👁️Spectator",
+       }[player.team] || "None"
+     }
      Your Role: ${roleMsg ? roleMsg : "None"}`,
   );
 }
