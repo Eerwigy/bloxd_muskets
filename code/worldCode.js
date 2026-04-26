@@ -387,7 +387,7 @@ function startGame() {
         frenchTeam.push(id);
         api.sendMessage(
           id,
-          "Info: You have been randomly assigned to French team",
+          "You have been randomly assigned to French team",
           {
             color: PALETTE.info,
           },
@@ -396,40 +396,26 @@ function startGame() {
         britishTeam.push(id);
         api.sendMessage(
           id,
-          "Info: You have been randomly assigned to British team",
+          "You have been randomly assigned to British team",
           {
             color: PALETTE.info,
           },
         );
       }
     }
+
+    gameState.players[id].role = "soldier";
+    api.sendMessage(id, "You have been assigned to Musketeer🏹", { color: PALETTE.info }]);
   }
 
-  let diff = frenchTeam.length - britishTeam.length;
-
-  if (Math.abs(diff) > 1) {
-    const biggerTeam = diff > 0 ? frenchTeam : britishTeam;
-    const smallerTeam = diff > 0 ? britishTeam : frenchTeam;
-    const msg = diff > 0 ? "British" : "French";
-
-    while (Math.abs(biggerTeam.length - smallerTeam.length) > 1) {
-      const movedPlayer = biggerTeam.pop();
-      smallerTeam.push(movedPlayer);
-
-      api.sendMessage(
-        movedPlayer,
-        `Info: You have been reassigned to ${msg} team`,
-        { color: PALETTE.info },
-      );
-    }
-  }
-
+  gameState.teams.french = []
   for (const id of frenchTeam) {
     gameState.players[id].team = "french";
     gameState.teams.french.push(id);
     api.setPosition(id, FRENCH_CAMP_POS);
   }
 
+  gameState.teams.british = []
   for (const id of britishTeam) {
     gameState.players[id].team = "british";
     gameState.teams.british.push(id);
