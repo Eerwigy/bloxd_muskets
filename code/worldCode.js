@@ -447,6 +447,10 @@ function endGame() {
   gameState.gameStarted = false;
 }
 
+function notStarted() {
+  return !gameState.gameStarted && !TESTMODE;
+}
+
 // =================
 // Roles Helpers
 // =================
@@ -865,8 +869,16 @@ function equipUniform(id) {
   }
 }
 
+function getMoraleFactor(morale) {
+  return 0.5 + morale * 0.01;
+}
+
+function reverseMoraleFactor(morale, val) {
+  return val - val * morale * 0.01;
+}
+
 // =================
-// Helpers
+// Other helpers
 // =================
 
 function createPlayer({ team = null, morale = 100 } = {}) {
@@ -889,10 +901,6 @@ function applyRecoil(id, dir, weapon) {
     -dir[1] * strength,
     -dir[2] * strength,
   );
-}
-
-function notStarted() {
-  return !gameState.gameStarted && !TESTMODE;
 }
 
 function getClosest(ids, id, player, myPos) {
@@ -944,14 +952,6 @@ function shuffle(arr) {
     const j = Math.floor(Math.random() * (i + 1));
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
-}
-
-function getMoraleFactor(morale) {
-  return 0.5 + morale * 0.01;
-}
-
-function reverseMoraleFactor(morale, val) {
-  return val - val * morale * 0.01;
 }
 
 function capitalizeFirstLetter(str) {
