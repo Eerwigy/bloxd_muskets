@@ -455,6 +455,74 @@ function notStarted() {
 // Roles Helpers
 // =================
 
+function tryAssignTeam(id, newTeam) {
+  const player = gameState.players[id];
+  if (!player) return;
+
+  const oldTeam = player.team;
+
+  if (oldTeam === newTeam) return;
+
+  if (!["french", "british"].includes(newTeam)) {
+    api.sendMessage(id, "Invalid team", { color: PALETTE.error });
+    return;
+  }
+
+  const french = gameState.teams.french;
+  const british = gameState.teams.british;
+
+  let frenchSize = french.length;
+  let britishSize = british.length;
+
+  if (oldTeam === "french") frenchSize--;
+  if (oldTeam === "british") britishSize--;
+
+  if (newTeam === "french") frenchSize++;
+  if (newTeam === "british") britishSize++;
+
+  if (Math.abs(frenchSize - britishSize) > 1) {
+    api.sendMessage(id, "Team is full", { color: PALETTE.error });
+    return;
+  }
+
+  if (oldTeam) {
+    removeFromArray(gameState.teams[oldTeam], id);
+  }
+
+  gameState.teams[newTeam].push(id);
+  player.team = newTeam;
+
+  api.sendMessage(
+    id,
+    `You joined the ${newTeam} team`,
+    { color: PALETTE.info }
+  );
+
+  enforceRoleAfterTeamSwitch(id);
+}
+
+function enforceRoleAfterTeamSwitch(id) {
+  const player = gameState.players[id];
+  if (!player.role) return;
+
+  const teamIds = gameState.teams[player.team];
+  const caps = getRoleCaps(teamIds.length);
+  const counts = countRoles(teamIds);
+
+  const role = player.role;
+  const max = caps[role] ?? Infinity;
+
+  if ((counts[role] || 0) > max) {
+    player.role = "soldier";
+
+    api.sendMessage(
+      id,
+      "You were reassigned to musketeer to balance team roles",
+      { color: PALETTE.info }
+    );
+  }
+}
+
 function getRoleCaps(teamSize) {
   const caps = {
     sharpshooter: 0,
