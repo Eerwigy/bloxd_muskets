@@ -110,6 +110,16 @@ const ROLE_MSG = {
   medic: "⚕️Surgeon",
 };
 
+const ROLE_MSG_END = {
+  soldier: "Musketeer🏹",
+  sharpshooter: "Sharpshooter🎯",
+  artillery: "Artillery💥",
+  dragoon: "Cavalry🐴",
+  grenadier: "Grenadier💣",
+  captain: "Captain👑",
+  medic: "Surgeon⚕️",
+};
+
 const PALETTE = {
   british: "#ff2222",
   french: "#0069ff",
@@ -600,7 +610,7 @@ function tryAssignRole(id, role) {
 
   api.sendMessage(
     id,
-    `You are now ${ROLE_MSG[role] || role}`,
+    `You are now ${ROLE_MSG_END[role] || role}`,
     { color: PALETTE.info }
   );
 
