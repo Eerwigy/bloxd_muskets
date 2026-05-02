@@ -434,10 +434,16 @@ function startGame() {
 
   for (const id of gameState.teams.french) {
     api.setPosition(id, FRENCH_CAMP_POS);
+    api.clearInventory(id);
+    equipUniform(id);
+    giveWeapons(id);
   }
 
   for (const id of gameState.teams.british) {
     api.setPosition(id, BRITISH_CAMP_POS);
+    api.clearInventory(id);
+    equipUniform(id);
+    giveWeapons(id);
   }
 
   gameState.gameStarted = true;
