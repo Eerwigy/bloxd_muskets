@@ -992,6 +992,186 @@ function reverseMoraleFactor(morale, val) {
   return val - val * morale * 0.01;
 }
 
+function giveWeapons(id) {
+  const player = gameState.players[id];
+
+  switch (player.role) {
+    case "soldier":
+
+      api.giveItem(myId, "Wood Crossbow", 1, {
+        customDisplayName: "Smoothbore Musket",
+        customDescription: "Your standard issue musket",
+        customAttributes: {
+          "muskets/name": "smoothbore",
+          enchantmentTier: "Tier 3",
+          enchantments: {
+            Damage: 10,
+            "Horizontal Knockback": 3,
+          },
+        },
+      });
+
+      return;
+    case "sharpshooter":
+      api.giveItem(myId, "Stone Crossbow", 1, {
+        customDisplayName: "Rifled Musket",
+        customDescription: "Deals more ranged damage than smoothbores",
+        customAttributes: {
+          "muskets/name": "rifle",
+          enchantmentTier: "Tier 4",
+          enchantments: {
+            Damage: 5,
+            "Horizontal Knockback": 2,
+          },
+        },
+      });
+
+      return;
+    case "grenadier":
+
+      api.giveItem(myId, "Wood Crossbow", 1, {
+        customDisplayName: "Smoothbore Musket",
+        customDescription: "Your standard issue musket",
+        customAttributes: {
+          "muskets/name": "smoothbore",
+          enchantmentTier: "Tier 3",
+          enchantments: {
+            Damage: 10,
+            "Horizontal Knockback": 3,
+          },
+        },
+      });
+
+      api.giveItem(myId, "Gray Paintball", 1, {
+        customDisplayName: "Handgrenade",
+        customDescription: "Throwable bombs that can disorient the enemy",
+        customAttributes: {
+          "muskets/name": "grenade",
+        },
+      });
+
+      return;
+    case "dragoon":
+
+      api.giveItem(myId, "Iron Sword", 1, {
+        customDisplayName: "Cavalry Sabre",
+        customDescription: "Main weapon of cavalry",
+        customAttributes: {
+          "muskets/name": "cav_sabre",
+          enchantmentTier: "Tier 3",
+          enchantments: {
+            "Attack Speed": 2,
+            "Horizontal Knockback": 4,
+          },
+        },
+      });
+
+      api.giveItem(myId, "Iron Crossbow", 1, {
+        customDisplayName: "Flintlock Pistol",
+        customDescription: "A very gentlemanly firearm",
+        customAttributes: {
+          "muskets/name": "pistol",
+          enchantmentTier: "Tier 4",
+        },
+      });
+
+      return;
+    case "artillery":
+      api.giveItem(myId, "Diamond Crossbow", 1, {
+        customDisplayName: "4-lb Field Cannon",
+        customDescription:
+          "An excellent lightweight artillery gun that shoots roundshot along with smaller projectiles",
+        customAttributes: {
+          "muskets/name": "arty",
+          enchantmentTier: "Tier 3",
+        },
+      });
+
+      return;
+    case "medic":
+
+      api.giveItem(myId, "Light Gray Paintball", 1, {
+        customDisplayName: "Bandages",
+        customDescription: "Use theses to heal your injured comrades",
+        customAttributes: {
+          "muskets/name": "bandages",
+        }
+      })
+
+      api.giveItem(myId, "Iron Dagger", 1, {
+        customDisplayName: "Scalpel",
+        customDescription: "Stab the people who come too close to your patients",
+        customAttributes: {
+          "muskets/name": "scalpel",
+        }
+      })
+
+      api.giveItem(myId, "Iron Crossbow", 1, {
+        customDisplayName: "Flintlock Pistol",
+        customDescription: "A very gentlemanly firearm",
+        customAttributes: {
+          "muskets/name": "pistol",
+          enchantmentTier: "Tier 4",
+        },
+      });
+
+      return;
+    case "captain":
+
+      api.giveItem(myId, "Gold Sword", 1, {
+        customDisplayName: "Infantry Sabre",
+        customDescription: "Main weapon of officers",
+        customAttributes: {
+          "muskets/name": "inf_sabre",
+          enchantmentTier: "Tier 4",
+        },
+      });
+
+      api.giveItem(myId, "Iron Crossbow", 1, {
+        customDisplayName: "Flintlock Pistol",
+        customDescription: "A very gentlemanly firearm",
+        customAttributes: {
+          "muskets/name": "pistol",
+          enchantmentTier: "Tier 4",
+        },
+      });
+
+      api.giveItem(myId, "Blue Paintball", 1, {
+        customDisplayName: "Advance Order",
+        customDescription: "Order your troops to advance",
+        customAttributes: {
+          "muskets/name": "order/advance",
+        },
+      });
+
+      api.giveItem(myId, "Red Paintball", 1, {
+        customDisplayName: "Charge Order",
+        customDescription: "Order your troops to charge",
+        customAttributes: {
+          "muskets/name": "order/charge",
+        },
+      });
+
+      api.giveItem(myId, "Yellow Paintball", 1, {
+        customDisplayName: "Hold Order",
+        customDescription: "Order your troops to hold their position and shoot",
+        customAttributes: {
+          "muskets/name": "order/hold",
+        },
+      });
+
+      api.giveItem(myId, "White Paintball", 1, {
+        customDisplayName: "Fallback Order",
+        customDescription: "Order your troops to fallback (retreat)",
+        customAttributes: {
+          "muskets/name": "order/fallback",
+        },
+      });
+
+      return;
+  }
+}
+
 // =================
 // Other helpers
 // =================
