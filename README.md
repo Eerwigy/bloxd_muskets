@@ -75,10 +75,10 @@ You are the leader of your team. You can order your team to hold position, march
 
 You can play in teams of 3-15. Each team has one captain. For specialist roles (sharpshooters, grenadiers, cavalry, artillery and surgeons), there is a max number of players that can have those roles based on the number of players in that team.
 
-| Players in Team | Max players per Role                                                  |
-| --------------- | --------------------------------------------------------------------- |
-| 3               | - Sharpshooter: 1                                                     |
-| 4-5             | - Sharpshooter: 1<br>- Grenadier: 1                                   |
-| 6-8             | - Sharpshooter: 2<br>- Grenadier: 1<br>- Artillery: 1<br>- Cavalry: 1 |
-| 9-12            | - Sharpshooter: 3<br>- Grenadier: 2<br>- Artillery: 1<br>- Cavalry: 1 |
-| 13-15           | - Sharpshooter: 5<br>- Grenadier: 4<br>- Artillery: 1<br>- Cavalry: 2 |
+| Players in Team | Max players per Role                                                                  |
+| --------------- | ------------------------------------------------------------------------------------- |
+| 3               | - Sharpshooter: 1                                                                     |
+| 4-5             | - Sharpshooter: 1<br>- Grenadier: 1                                                   |
+| 6-8             | - Sharpshooter: 2<br>- Grenadier: 1<br>- Cavalry: 1<br>- Surgeon: 1                   |
+| 9-12            | - Sharpshooter: 3<br>- Grenadier: 2<br>- Cavalry: 2<br>- Surgeon: 1<br>- Artillery: 1 |
+| 13-15           | - Sharpshooter: 4<br>- Grenadier: 3<br>- Cavalry: 3<br>- Surgeon: 2<br>- Artillery: 1 |

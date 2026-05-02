@@ -537,8 +537,8 @@ function getRoleCaps(teamSize) {
     captain: 1,
   };
 
-  if (teamSize < 4) {
-    return caps;
+  if (teamSize <= 3) {
+    caps.sharpshooter = 1;
   } else if (teamSize <= 5) {
     caps.sharpshooter = 1;
     caps.grenadier = 1;
