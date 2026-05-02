@@ -537,7 +537,9 @@ function getRoleCaps(teamSize) {
     captain: 1,
   };
 
-  if (teamSize >= 4 && teamSize <= 5) {
+  if (teamSize < 4) {
+    return caps;
+  } else if (teamSize <= 5) {
     caps.sharpshooter = 1;
     caps.grenadier = 1;
   } else if (teamSize <= 8) {
@@ -659,6 +661,28 @@ function updateSidebarNotStarted(id) {
   const player = gameState.players[id];
   const roleMsg = ROLE_MSG[player.role];
 
+  const team = player.team;
+  let roleInfo = "Join a team to see available roles";
+
+  if (team) {
+    const teamIds = gameState.teams[team];
+    const caps = getRoleCaps(teamIds.length);
+    const counts = countRoles(teamIds);
+
+    const lines = ["Available roles:"];
+
+    for (const role in ROLE_MSG) {
+      const current = counts[role] || 0;
+      const max = caps[role] ?? teamIds.length;
+
+      lines.push(
+        `${ROLE_MSG[role]}: (${current}/${max})`
+      );
+    }
+
+    roleInfo = lines.join("\n");
+  }
+
   api.setClientOption(
     id,
     "RightInfoText",
@@ -674,7 +698,9 @@ function updateSidebarNotStarted(id) {
          spectator: "👁️Spectator",
        }[player.team] || "None"
      }
-     Your Role: ${roleMsg ? roleMsg : "None"}`,
+     Your Role: ${roleMsg ? roleMsg : "None"}
+
+     ${roleInfo}`,
   );
 }
 
