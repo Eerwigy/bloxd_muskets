@@ -70,7 +70,7 @@ const UNIFORMS = {
   },
 
   roles: {
-    medic: {
+    surgeon: {
       helmet: {
         british: "Red Wood Helmet",
         french: "Blue Wood Helmet",
@@ -80,10 +80,10 @@ const UNIFORMS = {
       leggings: "Brown Wood Leggings",
     },
 
-    soldier: { helmet: "Gray Wood Helmet" },
+    musketeer: { helmet: "Gray Wood Helmet" },
     grenadier: { helmet: "Black Wood Helmet" },
     sharpshooter: { helmet: "Green Wood Helmet" },
-    dragoon: { helmet: "Iron Helmet", gauntlets: "White Wood Gauntlets" },
+    cavalry: { helmet: "Iron Helmet", gauntlets: "White Wood Gauntlets" },
     artillery: { helmet: "Cyan Wood Helmet" },
     captain: { helmet: "Gold Helmet" },
   },
@@ -101,23 +101,23 @@ const UNIFORMS = {
 };
 
 const ROLE_MSG = {
-  soldier: "🏹Musketeer",
+  musketeer: "🏹Musketeer",
   sharpshooter: "🎯Sharpshooter",
   artillery: "💥Artillery",
-  dragoon: "🐴Cavalry",
+  cavalry: "🐴Cavalry",
   grenadier: "💣Grenadier",
   captain: "👑Captain",
-  medic: "⚕️Surgeon",
+  surgeon: "⚕️Surgeon",
 };
 
 const ROLE_MSG_END = {
-  soldier: "Musketeer🏹",
+  musketeer: "Musketeer🏹",
   sharpshooter: "Sharpshooter🎯",
   artillery: "Artillery💥",
-  dragoon: "Cavalry🐴",
+  cavalry: "Cavalry🐴",
   grenadier: "Grenadier💣",
   captain: "Captain👑",
-  medic: "Surgeon⚕️",
+  surgeon: "Surgeon⚕️",
 };
 
 const PALETTE = {
@@ -428,8 +428,10 @@ function startGame() {
       }
     }
 
-    player.role = "soldier";
-    api.sendMessage(id, "You have been assigned to Musketeer🏹", { color: PALETTE.info });
+    player.role = "musketeer";
+    api.sendMessage(id, "You have been assigned to Musketeer🏹", {
+      color: PALETTE.info,
+    });
   }
 
   for (const id of gameState.teams.french) {
@@ -505,7 +507,7 @@ function tryAssignTeam(id, newTeam) {
   api.sendMessage(
     id,
     `You joined the ${newTeam} team`,
-    { color: PALETTE.info }
+    { color: PALETTE.info },
   );
 
   enforceRoleAfterTeamSwitch(id);
@@ -523,12 +525,12 @@ function enforceRoleAfterTeamSwitch(id) {
   const max = caps[role] ?? Infinity;
 
   if ((counts[role] || 0) > max) {
-    player.role = "soldier";
+    player.role = "musketeer";
 
     api.sendMessage(
       id,
       "You were reassigned to musketeer to balance team roles",
-      { color: PALETTE.info }
+      { color: PALETTE.info },
     );
   }
 }
@@ -537,9 +539,9 @@ function getRoleCaps(teamSize) {
   const caps = {
     sharpshooter: 0,
     grenadier: 0,
-    dragoon: 0,
+    cavalry: 0,
     artillery: 0,
-    medic: 0,
+    surgeon: 0,
     captain: 1,
   };
 
@@ -551,19 +553,19 @@ function getRoleCaps(teamSize) {
   } else if (teamSize <= 8) {
     caps.sharpshooter = 2;
     caps.grenadier = 1;
-    caps.dragoon = 1;
-    caps.medic = 1;
+    caps.cavalry = 1;
+    caps.surgeon = 1;
   } else if (teamSize <= 12) {
     caps.sharpshooter = 3;
     caps.grenadier = 2;
-    caps.dragoon = 2;
-    caps.medic = 1;
+    caps.cavalry = 2;
+    caps.surgeon = 1;
     caps.artillery = 1;
   } else if (teamSize >= 13) {
     caps.sharpshooter = 4;
     caps.grenadier = 3;
-    caps.dragoon = 3;
-    caps.medic = 2;
+    caps.cavalry = 3;
+    caps.surgeon = 2;
     caps.artillery = 1;
   }
 
@@ -588,7 +590,9 @@ function tryAssignRole(id, role) {
   const team = player.team;
 
   if (!team) {
-    api.sendMessage(id, "Join a team before picking a role", { color: PALETTE.error });
+    api.sendMessage(id, "Join a team before picking a role", {
+      color: PALETTE.error,
+    });
     return;
   }
 
@@ -609,7 +613,7 @@ function tryAssignRole(id, role) {
     api.sendMessage(
       id,
       `${ROLE_MSG[role] || role} is full for your team`,
-      { color: PALETTE.error }
+      { color: PALETTE.error },
     );
     return;
   }
@@ -619,7 +623,7 @@ function tryAssignRole(id, role) {
   api.sendMessage(
     id,
     `You are now ${ROLE_MSG_END[role] || role}`,
-    { color: PALETTE.info }
+    { color: PALETTE.info },
   );
 
   equipUniform(id);
@@ -682,7 +686,7 @@ function updateSidebarNotStarted(id) {
       const max = caps[role] ?? teamIds.length;
 
       lines.push(
-        `${ROLE_MSG[role]}: (${current}/${max})`
+        `${ROLE_MSG[role]}: (${current}/${max})`,
       );
     }
 
@@ -698,12 +702,12 @@ function updateSidebarNotStarted(id) {
      Game has not started yet
 
      Your Team: ${
-       {
-         french: "🟦French",
-         british: "🟥British",
-         spectator: "👁️Spectator",
-       }[player.team] || "None"
-     }
+      {
+        french: "🟦French",
+        british: "🟥British",
+        spectator: "👁️Spectator",
+      }[player.team] || "None"
+    }
      Your Role: ${roleMsg ? roleMsg : "None"}
 
      ${roleInfo}`,
@@ -1002,8 +1006,7 @@ function giveWeapons(id) {
   const player = gameState.players[id];
 
   switch (player.role) {
-    case "soldier":
-
+    case "musketeer":
       api.giveItem(myId, "Wood Crossbow", 1, {
         customDisplayName: "Smoothbore Musket",
         customDescription: "Your standard issue musket",
@@ -1034,7 +1037,6 @@ function giveWeapons(id) {
 
       return;
     case "grenadier":
-
       api.giveItem(myId, "Wood Crossbow", 1, {
         customDisplayName: "Smoothbore Musket",
         customDescription: "Your standard issue musket",
@@ -1057,8 +1059,7 @@ function giveWeapons(id) {
       });
 
       return;
-    case "dragoon":
-
+    case "cavalry":
       api.giveItem(myId, "Iron Sword", 1, {
         customDisplayName: "Cavalry Sabre",
         customDescription: "Main weapon of cavalry",
@@ -1094,23 +1095,23 @@ function giveWeapons(id) {
       });
 
       return;
-    case "medic":
-
+    case "surgeon":
       api.giveItem(myId, "Light Gray Paintball", 1, {
         customDisplayName: "Bandages",
         customDescription: "Use theses to heal your injured comrades",
         customAttributes: {
           "muskets/name": "bandages",
-        }
-      })
+        },
+      });
 
       api.giveItem(myId, "Iron Dagger", 1, {
         customDisplayName: "Scalpel",
-        customDescription: "Stab the people who come too close to your patients",
+        customDescription:
+          "Stab the people who come too close to your patients",
         customAttributes: {
           "muskets/name": "scalpel",
-        }
-      })
+        },
+      });
 
       api.giveItem(myId, "Iron Crossbow", 1, {
         customDisplayName: "Flintlock Pistol",
@@ -1123,7 +1124,6 @@ function giveWeapons(id) {
 
       return;
     case "captain":
-
       api.giveItem(myId, "Gold Sword", 1, {
         customDisplayName: "Infantry Sabre",
         customDescription: "Main weapon of officers",
